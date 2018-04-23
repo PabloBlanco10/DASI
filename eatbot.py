@@ -12,12 +12,45 @@
 
 import sys
 import time
+import database
 import telepot
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
-
+import json
+from watson_developer_cloud import NaturalLanguageUnderstandingV1
+from watson_developer_cloud.natural_language_understanding_v1 \
+  import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, RelationsOptions
 
 TOKEN = '511510486:AAEULAaDh8wnpHB5oXydCo149zus3MknZfg'  # @eatbot_bot
+
+natural_language_understanding = NaturalLanguageUnderstandingV1(
+  username='98851fcb-a08a-4596-babb-f1f734c48af8',
+  password='3Hum5Es63rG3',
+  version='2018-03-16')
+
+response = natural_language_understanding.analyze(
+  text='quiero pedir una pizza bolognesa para cenar',
+  clean=False,
+  features=Features(
+    entities=EntitiesOptions(
+      limit=5),
+    concepts=ConceptsOptions(
+      limit=3),
+    categories=CategoriesOptions(),
+    relations=RelationsOptions(),
+    keywords=KeywordsOptions())
+)
+
+print(json.dumps(response, indent=2))
+
+listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos", "Pizza mozzarella", "Pizza prosciutto"]
+listaRestaurantes = ["Restaurante1", "Restaurante2", "Restaurante3", "Restaurante4"]
+
+
+database.borrarBBDD
+database.crearTablas
+database.cargarProductosBBDD(listaProductos)
+database.cargarRestaurantesBBDD(listaRestaurantes)
 
 
 #función que gestiona los mensajes recibidos por el chat
@@ -55,4 +88,3 @@ print('Listening ...')
 
 while 1:
     time.sleep(10)
-

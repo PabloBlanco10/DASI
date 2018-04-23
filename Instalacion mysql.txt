@@ -1,0 +1,83 @@
+pip install pymysql
+pip install mysqlclient
+
+
+Comandos en terminal para mysql:
+mysql.server start
+sudo mysql -u root -p
+(pulsar enter en password para dejarlo sin password)
+CREATE DATABASE eatbot;
+use eatbot;
+
+show tables
+
+
+
+CREATE TABLE Producto(
+    idProducto int NOT NULL AUTO_INCREMENT,
+    nombreProducto varchar(100) UNIQUE,
+    PRIMARY KEY (idProducto)
+    UNIQUE(nombreProducto)
+) ;
+
+
+CREATE TABLE Restaurante(
+    idRestaurante int NOT NULL AUTO_INCREMENT,
+    nombreRestaurante varchar(100),
+    PRIMARY KEY (idRestaurante),
+    UNIQUE(nombreRestaurante)
+) ;
+
+
+CREATE TABLE RestauranteProducto(
+    idRestaurante int,
+    idProducto int,
+    PRIMARY KEY (idRestaurante, idProducto),
+    FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante),
+    FOREIGN KEY (idProducto) REFERENCES Producto (idProducto)
+) ;
+
+
+
+Cómo exportar una bases de datos MySQL
+mysqldump -u root servidor > telegram_bot_db.sql
+
+Cómo importar una base de datos MySQL
+mysql -u newsBot newBot <  telegram_bot_db.sql
+
+Acceso a la MySql
+mysql -u root -p
+
+Ver todas las bases de datos
+show databases;
+
+Borrar todos los registros en una tabla
+truncate table telegram_bot_db;
+
+Borrar una tabla
+drop table telegram_bot_db;
+
+Listado de las tablas de la base de datos:
+SHOW FULL TABLES FROM mi_base_de_datos;
+
+Crear base de datos:
+CREATE DATABASE nombrebbdd;
+
+Ejemplo de una tabla:
+
+
+INSERT INTO Producto (idProducto, nombreProducto) VALUES ('')
+
+
+INSERT IGNORE INTO Cine (nombre, enlace) VALUES ('{0}', '{1}');
+
+
+
+
+
+
+
+
+
+
+
