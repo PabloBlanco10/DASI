@@ -41,16 +41,18 @@ response = natural_language_understanding.analyze(
     keywords=KeywordsOptions())
 )
 
-print(json.dumps(response, indent=2))
+#print(json.dumps(response, indent=2))
 
 listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos", "Pizza mozzarella", "Pizza prosciutto"]
 listaRestaurantes = ["Restaurante1", "Restaurante2", "Restaurante3", "Restaurante4"]
 
 
-database.borrarBBDD
-database.crearTablas
+database.borrarBBDD()
+database.crearTablas()
 database.cargarProductosBBDD(listaProductos)
 database.cargarRestaurantesBBDD(listaRestaurantes)
+
+
 
 
 #función que gestiona los mensajes recibidos por el chat

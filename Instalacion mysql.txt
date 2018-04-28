@@ -72,7 +72,81 @@ INSERT INTO Producto (idProducto, nombreProducto) VALUES ('')
 INSERT IGNORE INTO Cine (nombre, enlace) VALUES ('{0}', '{1}');
 
 
+CONEXION
 
+def connection():
+    conn = MySQLdb.connect(host= "localhost",
+                           user="root",
+                           passwd="",
+                           db="eatbot")
+                           
+    return conn
+
+
+
+BORRAR
+
+def borrarBBDD():
+    conn = connection()
+    x = conn.cursor()
+    query = "DROP TABLE IF EXISTS RestauranteProducto;" # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("Fallo:%s" % query + '\n')
+
+    conn.commit()
+    x.close()
+    conn.close()
+
+
+
+CREAR
+
+def crearTablas():
+    conn = connection()
+    x = conn.cursor()
+
+    query = "CREATE TABLE Producto(idProducto int NOT NULL AUTO_INCREMENT,nombreProducto varchar(100), UNIQUE(nombreProducto),PRIMARY KEY (idProducto)) ; "
+
+    try:
+        # print(query)
+        x.execute(query)
+    except MySQLdb.Warning:
+        print("Fallo:%s" % query + '\n')
+    # print("Tablas creadas")
+
+    conn.commit()
+
+    query = "CREATE TABLE Restaurante(idRestaurante int NOT NULL AUTO_INCREMENT,nombreRestaurante varchar(100),PRIMARY KEY (idRestaurante),UNIQUE(nombreRestaurante)) ; "
+
+    query = "CREATE TABLE RestauranteProducto(idRestaurante int,idProducto int,PRIMARY KEY (idRestaurante, idProducto),FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante),FOREIGN KEY (idProducto) REFERENCES Producto (idProducto)) ;"
+
+    x.close()
+    conn.close()
+
+
+
+CARGAR BBDD PRODUCTOS
+
+def cargarProductosBBDD(listaProductos):
+    conn = connection()
+    x = conn.cursor()
+
+    for producto in listaProductos:
+
+        query = "INSERT IGNORE INTO Producto (nombreProducto) VALUES ('{0}');" .format(producto)
+        
+        try:
+            x.execute(query)
+        except MySQLdb.ProgrammingError:
+            print("La siguiente query ha fallado:%s" % query + '\n')
+        print("El producto " + str(producto) + " ha sido añadido")
+
+    conn.commit()
+    x.close()
+    conn.close()
 
 
 
