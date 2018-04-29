@@ -86,20 +86,29 @@ respuesta = natural_language_understanding.analyze(
     # emotion= EmotionOptions())
 print(json.dumps(respuesta, indent=2))
 
-listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos", "Pizza mozzarella", "Pizza prosciutto"]
+listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos",
+                  "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab Carne", "Kebab Pollo", "Patatas fritas",
+                  "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata", "Costillas"]
+
 listaRestaurantes = [["Restaurante Asiatico","chino"], ["Pizzeria Luigi","italiano"],
                      ["La mafia","italiano"], ["Durum Doner","turco"], ["Durum kebab","turco"],
                      ["Korean Style","coreano"], ["Nyu Jao","japones"], ["Burger","americano"],
                      ["Casa Jose", "español"], ["Mcdonals","americano"], ["American Grill","americano"]]
 
+listaProductosRestaurantes = [[1,9], [1,10], [2,2], [2,4], [3,2], [3,5], [4,11], [4,12],
+                              [5,11], [5,13], [6,9], [6,14], [7,9], [7,15],
+                              [8, 16], [8,17], [9, 18], [9,19], [10,13],[10,16],
+                              [11,17], [11,19]]
 
 database.borrarBBDD()
 database.crearTablas()
 database.cargarProductosBBDD(listaProductos)
 database.cargarRestaurantesBBDD(listaRestaurantes)
+database.cargarRestaurantesProductosBBDD(listaProductosRestaurantes)
 database.buscarTiposRestaurante()
 
 lista = database.buscarRestaurantesDelTipo('chino')
+listaProd = database.buscarProductosDelRestaurante('Restaurante Asiatico')
 
 class UserHandler(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
@@ -109,6 +118,11 @@ class UserHandler(telepot.helper.ChatHandler):
         content_type, chat_type, chat_id = telepot.glance(msg)
         print (content_type, chat_type, chat_id)
 
+        print(chat_id)
+        print(msg['from']['first_name'])
+
+        listaUsuarios = [[chat_id, msg['from']['first_name']]]
+        database.insertarUsuario(listaUsuarios)
         mensaje = msg['text']
         print(mensaje)
         listaDeSaludos = ['hola', 'buenas', 'hey']

@@ -24,6 +24,7 @@ CREATE TABLE Producto(
 CREATE TABLE Restaurante(
     idRestaurante int NOT NULL AUTO_INCREMENT,
     nombreRestaurante varchar(100),
+    tipoRestaurante varchar(100),
     PRIMARY KEY (idRestaurante),
     UNIQUE(nombreRestaurante)
 ) ;
@@ -37,6 +38,11 @@ CREATE TABLE RestauranteProducto(
     FOREIGN KEY (idProducto) REFERENCES Producto (idProducto)
 ) ;
 
+CREATE TABLE Usuario(
+    idUsuario int,
+    nombreUsuario varchar(100),
+    PRIMARY KEY (idUsuario)
+) ;
 
 
 Cómo exportar una bases de datos MySQL
