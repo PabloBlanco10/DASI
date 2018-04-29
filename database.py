@@ -1,4 +1,7 @@
 import MySQLdb
+import requests
+import re
+
 
 def connection():
     conn = MySQLdb.connect(host= "localhost",
@@ -32,8 +35,10 @@ def cargarRestaurantesBBDD(listaRestaurantes):
     x = conn.cursor()
 
     for restaurante in listaRestaurantes:
+        nombreRestaurante = restaurante[0]
+        tipoRestaurante = restaurante[1]
 
-        query = "INSERT IGNORE INTO Restaurante (nombreRestaurante) VALUES ('{0}');".format(restaurante)
+        query = "INSERT IGNORE INTO Restaurante (nombreRestaurante, tipoRestaurante) VALUES ('{0}', '{1}');".format(restaurante[0], restaurante[1])
 
         try:
             x.execute(query)
@@ -93,7 +98,7 @@ def crearTablas():
 
     conn.commit()
 
-    query = "CREATE TABLE Restaurante(idRestaurante int NOT NULL AUTO_INCREMENT,nombreRestaurante varchar(100),PRIMARY KEY (idRestaurante),UNIQUE(nombreRestaurante)) ; "
+    query = "CREATE TABLE Restaurante(idRestaurante int NOT NULL AUTO_INCREMENT,nombreRestaurante varchar(100), tipoRestaurante varchar(100), PRIMARY KEY (idRestaurante),UNIQUE(nombreRestaurante)) ; "
 
     try:
         x.execute(query)
@@ -115,9 +120,47 @@ def crearTablas():
     x.close()
     conn.close()
 
+def buscarTiposRestaurante():
+    conn = connection()
+    x = conn.cursor()
+    listaTiposRestaurante = []
+
+    query = "SELECT DISTINCT tipoRestaurante FROM Restaurante ;".format(str)
+
+    try:
+        x.execute(query)
+
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+    for line in x:
+        listaTiposRestaurante.append(line[0])
+    conn.commit()
+    x.close()
+    conn.close()
+    return listaTiposRestaurante
 
 
+def buscarRestaurantesDelTipo(tipoRestaurante):
+    conn = connection()
+    x = conn.cursor()
+    listaRestaurantes = []
+    escaped = re.escape(tipoRestaurante)
 
+    query = "SELECT DISTINCT nombreRestaurante FROM Restaurante WHERE tipoRestaurante = '{0}' ;".format(escaped)
+
+    try:
+        x.execute(query)
+
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+    for line in x:
+        listaRestaurantes.append(line[0])
+    conn.commit()
+    x.close()
+    conn.close()
+    return listaRestaurantes
 
 
 
