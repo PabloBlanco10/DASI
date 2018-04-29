@@ -95,7 +95,7 @@ listaRestaurantes = [["Restaurante Asiatico","chino"], ["Pizzeria Luigi","italia
                      ["Korean Style","coreano"], ["Nyu Jao","japones"], ["Burger","americano"],
                      ["Casa Jose", "español"], ["Mcdonals","americano"], ["American Grill","americano"]]
 
-listaProductosRestaurantes = [[1,9], [1,10], [2,2], [2,4], [3,2], [3,5], [4,11], [4,12],
+listaRelacionProductosRestaurantes = [[1,9], [1,10], [2,2], [2,4], [3,2], [3,5], [4,11], [4,12],
                               [5,11], [5,13], [6,9], [6,14], [7,9], [7,15],
                               [8, 16], [8,17], [9, 18], [9,19], [10,13],[10,16],
                               [11,17], [11,19]]
@@ -104,11 +104,11 @@ database.borrarBBDD()
 database.crearTablas()
 database.cargarProductosBBDD(listaProductos)
 database.cargarRestaurantesBBDD(listaRestaurantes)
-database.cargarRestaurantesProductosBBDD(listaProductosRestaurantes)
+database.cargarRestaurantesProductosBBDD(listaRelacionProductosRestaurantes)
 database.buscarTiposRestaurante()
 
-lista = database.buscarRestaurantesDelTipo('chino')
-listaProd = database.buscarProductosDelRestaurante('Restaurante Asiatico')
+listaRestaurantesTipoX = database.buscarRestaurantesDelTipo('chino')
+listaProductosRestauranteX = database.buscarProductosDelRestaurante('Restaurante Asiatico')
 
 class UserHandler(telepot.helper.ChatHandler):
     def __init__(self, *args, **kwargs):
@@ -123,6 +123,10 @@ class UserHandler(telepot.helper.ChatHandler):
 
         listaUsuarios = [[chat_id, msg['from']['first_name']]]
         database.insertarUsuario(listaUsuarios)
+        database.insertarPedido([[chat_id, 'Casa Jose']])
+        idPedido = database.buscarPedido(chat_id, 'Casa Jose')
+        database.insertarPedidoProducto(idPedido, 'Costillas')# for hasta que termine de introducir todos los productos
+
         mensaje = msg['text']
         print(mensaje)
         listaDeSaludos = ['hola', 'buenas', 'hey']

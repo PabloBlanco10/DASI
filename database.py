@@ -11,7 +11,7 @@ def connection():
                            
     return conn
 
-def insertarUsuario(listaUsuario):
+def insertarUsuario(listaUsuario): #Le llega una lista con el id del usuario y el nombre del usuario
 
     conn = connection()
     x = conn.cursor()
@@ -33,29 +33,51 @@ def insertarUsuario(listaUsuario):
     x.close()
     conn.close()
 
-def cargarPedido(listaUsuario):
+def insertarPedidoProducto(listaPedidoProductos): #Le llega una lista con el id del pedido y el id del producto
 
     conn = connection()
     x = conn.cursor()
 
-    for usuario in listaUsuario:
+    for pedidoProducto in listaPedidoProductos:
 
-        idUsuario = usuario[0]
-        nombreUsuario = usuario[1]
+        idPedido = pedidoProducto[0]
+        idProducto = pedidoProducto[1]
 
-        query = "INSERT IGNORE INTO Pedido (idUsuario, nombreUsuario) VALUES ('{0}', '{1}');".format(usuario[0], usuario[1])
+        query = "INSERT IGNORE INTO Pedido (idPedido, idProducto) VALUES ('{0}', '{1}');".format(pedidoProducto[0], pedidoProducto[1])
 
         try:
             x.execute(query)
         except MySQLdb.ProgrammingError:
             print("La siguiente query ha fallado:%s" % query + '\n')
-        print("El usuario " + str(nombreUsuario) + " ha sido añadido")
+        print("El pedido " + str(idPedido) + " con el producto: "+ str(idProducto) +"ha sido añadido")
 
     conn.commit()
     x.close()
     conn.close()
 
-def cargarProductosBBDD(listaProductos):
+def insertarPedido(listaPedido): #Le llega una lista con el usuario que hace el pedido y el nombre del restaurante que elije
+
+    conn = connection()
+    x = conn.cursor()
+
+    for pedido in listaPedido:
+
+        idUsuario = pedido[0]
+        nombreRestaurante = pedido[1]
+
+        query = "INSERT IGNORE INTO Pedido (idUsuario, nombreRestaurante) VALUES ('{0}', '{1}');".format(pedido[0], pedido[1])
+
+        try:
+            x.execute(query)
+        except MySQLdb.ProgrammingError:
+            print("La siguiente query ha fallado:%s" % query + '\n')
+        print("El pedido del usuario " + str(idUsuario) + " para el restaurante: "+ str(nombreRestaurante) +"ha sido añadido")
+
+    conn.commit()
+    x.close()
+    conn.close()
+
+def cargarProductosBBDD(listaProductos): #Le llega una lista con los nombres de los productos
     conn = connection()
     x = conn.cursor()
 
@@ -74,7 +96,7 @@ def cargarProductosBBDD(listaProductos):
     conn.close()
 
 
-def cargarRestaurantesBBDD(listaRestaurantes):
+def cargarRestaurantesBBDD(listaRestaurantes): #Le llega una lista con el nombre del restaurante y el tipo de restaurante
     conn = connection()
     x = conn.cursor()
 
@@ -94,14 +116,17 @@ def cargarRestaurantesBBDD(listaRestaurantes):
     x.close()
     conn.close()
 
-def cargarRestaurantesProductosBBDD(listaProductosRestaurantes):
+def cargarRestaurantesProductosBBDD(listaProductosRestaurantes): #Le llega una lista con el id del restaurante y el id del producto
     conn = connection()
     x = conn.cursor()
 
     for restauranteProducto in listaProductosRestaurantes:
 
+        idRestaurante = restauranteProducto[0]
+        idProducto = restauranteProducto[1]
+
         query = "INSERT IGNORE INTO RestauranteProducto (idRestaurante, idProducto) VALUES ('{0}', '{1}');".format(
-            restauranteProducto[0], restauranteProducto[1])
+            idRestaurante, idProducto)
 
         try:
             x.execute(query)
@@ -116,7 +141,7 @@ def cargarRestaurantesProductosBBDD(listaProductosRestaurantes):
 def borrarBBDD():
     conn = connection()
     x = conn.cursor()
-    query = "DROP TABLE IF EXISTS RestauranteProducto;" # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    query = "DROP TABLE IF EXISTS PedidoProducto;" # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
 
     try:
         x.execute(query)
@@ -125,22 +150,12 @@ def borrarBBDD():
 
     conn.commit()
 
-    query = "DROP TABLE IF EXISTS Producto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    query = "DROP TABLE IF EXISTS Pedido;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
 
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
         print("Fallo:%s" % query + '\n')
-
-    conn.commit()
-
-    query = "DROP TABLE IF EXISTS Restaurante;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
-
-    try:
-        x.execute(query)
-    except MySQLdb.ProgrammingError:
-        print("Fallo:%s" % query + '\n')
-    print("Tablas borradas")
 
     conn.commit()
 
@@ -154,7 +169,7 @@ def borrarBBDD():
 
     conn.commit()
 
-    query = "DROP TABLE IF EXISTS Pedido;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    query = "DROP TABLE IF EXISTS RestauranteProducto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
 
     try:
         x.execute(query)
@@ -164,7 +179,17 @@ def borrarBBDD():
 
     conn.commit()
 
-    query = "DROP TABLE IF EXISTS PedidoProducto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    query = "DROP TABLE IF EXISTS Producto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("Fallo:%s" % query + '\n')
+    print("Tablas borradas")
+
+    conn.commit()
+
+    query = "DROP TABLE IF EXISTS Restaurante;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
 
     try:
         x.execute(query)
@@ -220,8 +245,7 @@ def crearTablas():
 
     conn.commit()
 
-    query = "CREATE TABLE Pedido( idPedido int NOT NULL AUTO_INCREMENT, idUsuario int , idRestaurante int PRIMARY KEY(idPedido), FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante))" \
-            "FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario)";
+    query = "CREATE TABLE Pedido(idPedido int NOT NULL AUTO_INCREMENT, idUsuario int , idRestaurante int, PRIMARY KEY(idPedido), FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante) ,FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario))";
 
     try:
         x.execute(query)
@@ -231,8 +255,7 @@ def crearTablas():
 
     conn.commit()
 
-    query = "CREATE TABLE PedidoProducto( idPedido int, idProducto int, PRIMARY KEY(idPedido, idProducto), FOREIGN KEY (idPedido) REFERENCES Pedido (idPedido))" \
-            "FOREIGN KEY (idProducto) REFERENCES Producto (idProducto)";
+    query = "CREATE TABLE PedidoProducto( idPedido int, idProducto int, PRIMARY KEY(idPedido, idProducto), FOREIGN KEY (idPedido) REFERENCES Pedido (idPedido), FOREIGN KEY (idProducto) REFERENCES Producto (idProducto))";
 
     try:
         x.execute(query)
@@ -245,7 +268,7 @@ def crearTablas():
     x.close()
     conn.close()
 
-def buscarTiposRestaurante():
+def buscarTiposRestaurante(): #Devuelve la lista de los tipos de restaurantes
     conn = connection()
     x = conn.cursor()
     listaTiposRestaurante = []
@@ -266,7 +289,7 @@ def buscarTiposRestaurante():
     return listaTiposRestaurante
 
 
-def buscarRestaurantesDelTipo(tipoRestaurante):
+def buscarRestaurantesDelTipo(tipoRestaurante): #Devuelve una lista de los restaurantes de un tipo
     conn = connection()
     x = conn.cursor()
     listaRestaurantes = []
@@ -287,7 +310,7 @@ def buscarRestaurantesDelTipo(tipoRestaurante):
     conn.close()
     return listaRestaurantes
 
-def buscarProductosDelRestaurante(nombreRestaurante):
+def buscarProductosDelRestaurante(nombreRestaurante): #Busca los productos de un restaurante
     conn = connection()
     x = conn.cursor()
     listaProductos = []
@@ -309,6 +332,27 @@ def buscarProductosDelRestaurante(nombreRestaurante):
     conn.close()
     return listaProductos
 
+def buscarPedido(idUsuario, idRestaurante): #Devuelve el id del ultimo pedido que se ha insertado
+
+    conn = connection()
+    x = conn.cursor()
+
+    #escaped = re.escape(idUsuario)
+
+    query = "SELECT  idPedido FROM Pedido WHERE idUsuario = '{0}', ".format(idUsuario) + "AND idRestaurante = '{1}'" .format(idRestaurante)
+    + " AND idPedido = (SELECT max(idPedido) FROM Pedido)";
+
+    try:
+        x.execute(query)
+
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+    idProducto = x.fetchall()
+    conn.commit()
+    x.close()
+    conn.close()
+    return idProducto
 
 
 # def cargarRestaurantesProductosBBDD(listaProductosRestaurantes):

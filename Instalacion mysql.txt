@@ -44,6 +44,16 @@ CREATE TABLE Usuario(
     PRIMARY KEY (idUsuario)
 ) ;
 
+CREATE TABLE Pedido(
+	idPedido int NOT NULL AUTO_INCREMENT, 
+	idUsuario int , 
+	idRestaurante int,
+	PRIMARY KEY(idPedido), 
+	FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante), 
+	FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario)
+);
+
+
 
 Cómo exportar una bases de datos MySQL
 mysqldump -u root servidor > telegram_bot_db.sql
