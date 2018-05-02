@@ -125,7 +125,7 @@ class UserHandler(telepot.helper.ChatHandler):
         database.insertarUsuario(listaUsuarios)
         database.insertarPedido([[chat_id, 'Casa Jose']])
         idPedido = database.buscarPedido(chat_id, 'Casa Jose')
-        database.insertarPedidoProducto(idPedido, 'Costillas')# for hasta que termine de introducir todos los productos
+        database.insertarPedidoProducto([[idPedido, 'Costillas']])# for hasta que termine de introducir todos los productos
 
         mensaje = msg['text']
         print(mensaje)

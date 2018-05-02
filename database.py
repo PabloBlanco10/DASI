@@ -40,20 +40,21 @@ def insertarPedidoProducto(listaPedidoProductos): #Le llega una lista con el id 
 
     for pedidoProducto in listaPedidoProductos:
 
-        idPedido = pedidoProducto[0]
-        idProducto = pedidoProducto[1]
+        idPedido = pedidoProducto[0][0]
+        nombreProducto = pedidoProducto[1]
+        idProducto = buscarIDProdcuto(nombreProducto)
 
-        query = "INSERT IGNORE INTO Pedido (idPedido, idProducto) VALUES ('{0}', '{1}');".format(pedidoProducto[0], pedidoProducto[1])
+        query = "INSERT IGNORE INTO PedidoProducto (idPedido, idProducto) VALUES ('{0}', '{1}');".format(idPedido[0], idProducto)
 
         try:
             x.execute(query)
         except MySQLdb.ProgrammingError:
             print("La siguiente query ha fallado:%s" % query + '\n')
-        print("El pedido " + str(idPedido) + " con el producto: "+ str(idProducto) +"ha sido añadido")
+        print("El pedido " + str(idPedido) + " con el producto: "+ str(idProducto) +" ha sido añadido")
 
-    conn.commit()
-    x.close()
-    conn.close()
+        conn.commit()
+        x.close()
+        conn.close()
 
 def insertarPedido(listaPedido): #Le llega una lista con el usuario que hace el pedido y el nombre del restaurante que elije
 
@@ -65,13 +66,15 @@ def insertarPedido(listaPedido): #Le llega una lista con el usuario que hace el 
         idUsuario = pedido[0]
         nombreRestaurante = pedido[1]
 
-        query = "INSERT IGNORE INTO Pedido (idUsuario, nombreRestaurante) VALUES ('{0}', '{1}');".format(pedido[0], pedido[1])
+        idRestaurante = buscarIDRestaurante(nombreRestaurante)
+
+        query = "INSERT IGNORE INTO Pedido (idUsuario, idRestaurante) VALUES ('{0}', '{1}');".format(pedido[0], idRestaurante)
 
         try:
             x.execute(query)
         except MySQLdb.ProgrammingError:
             print("La siguiente query ha fallado:%s" % query + '\n')
-        print("El pedido del usuario " + str(idUsuario) + " para el restaurante: "+ str(nombreRestaurante) +"ha sido añadido")
+        print("El pedido del usuario " + str(idUsuario) + " para el restaurante: "+ str(nombreRestaurante) +" ha sido añadido")
 
     conn.commit()
     x.close()
@@ -103,6 +106,8 @@ def cargarRestaurantesBBDD(listaRestaurantes): #Le llega una lista con el nombre
     for restaurante in listaRestaurantes:
         nombreRestaurante = restaurante[0]
         tipoRestaurante = restaurante[1]
+
+
 
         query = "INSERT IGNORE INTO Restaurante (nombreRestaurante, tipoRestaurante) VALUES ('{0}', '{1}');".format(restaurante[0], restaurante[1])
 
@@ -310,6 +315,48 @@ def buscarRestaurantesDelTipo(tipoRestaurante): #Devuelve una lista de los resta
     conn.close()
     return listaRestaurantes
 
+def buscarIDRestaurante(nombreRestaurante): #Devuelve el id del restaurante introducido
+    conn = connection()
+    x = conn.cursor()
+
+
+
+    query = "SELECT DISTINCT idRestaurante FROM Restaurante WHERE nombreRestaurante = '{0}' ;".format(nombreRestaurante)
+
+    try:
+        x.execute(query)
+
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+    idRestaurante = x.fetchall()
+    idRestaurante = idRestaurante[0][0]
+    conn.commit()
+    x.close()
+    conn.close()
+    return idRestaurante
+
+def buscarIDProdcuto(nombreProducto): #Devuelve el id del restaurante introducido
+    conn = connection()
+    x = conn.cursor()
+
+
+
+    query = "SELECT DISTINCT idProducto FROM Producto WHERE nombreProducto = '{0}' ;".format(nombreProducto)
+
+    try:
+        x.execute(query)
+
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+    idProducto = x.fetchall()
+    idProducto = idProducto[0][0]
+    conn.commit()
+    x.close()
+    conn.close()
+    return idProducto
+
 def buscarProductosDelRestaurante(nombreRestaurante): #Busca los productos de un restaurante
     conn = connection()
     x = conn.cursor()
@@ -332,15 +379,14 @@ def buscarProductosDelRestaurante(nombreRestaurante): #Busca los productos de un
     conn.close()
     return listaProductos
 
-def buscarPedido(idUsuario, idRestaurante): #Devuelve el id del ultimo pedido que se ha insertado
+def buscarPedido(idUsuario, nombreRestaurante): #Devuelve el id del ultimo pedido que se ha insertado
 
     conn = connection()
     x = conn.cursor()
 
-    #escaped = re.escape(idUsuario)
+    idRestaurante = buscarIDRestaurante(nombreRestaurante)
 
-    query = "SELECT  idPedido FROM Pedido WHERE idUsuario = '{0}', ".format(idUsuario) + "AND idRestaurante = '{1}'" .format(idRestaurante)
-    + " AND idPedido = (SELECT max(idPedido) FROM Pedido)";
+    query = "SELECT idPedido FROM Pedido WHERE idUsuario = '%s'  AND idRestaurante = '%s' AND idPedido = (SELECT max(idPedido) FROM Pedido)" % (idUsuario, idRestaurante)
 
     try:
         x.execute(query)
