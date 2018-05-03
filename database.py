@@ -164,23 +164,12 @@ def borrarBBDD():
 
     conn.commit()
 
-    query = "DROP TABLE IF EXISTS Usuario;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
-
-    try:
-        x.execute(query)
-    except MySQLdb.ProgrammingError:
-        print("Fallo:%s" % query + '\n')
-    print("Tablas borradas")
-
-    conn.commit()
-
     query = "DROP TABLE IF EXISTS RestauranteProducto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
 
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
         print("Fallo:%s" % query + '\n')
-    print("Tablas borradas")
 
     conn.commit()
 
@@ -190,7 +179,6 @@ def borrarBBDD():
         x.execute(query)
     except MySQLdb.ProgrammingError:
         print("Fallo:%s" % query + '\n')
-    print("Tablas borradas")
 
     conn.commit()
 
@@ -240,15 +228,15 @@ def crearTablas():
 
     conn.commit()
 
-    query = "CREATE TABLE Usuario( idUsuario int, nombreUsuario varchar(100), PRIMARY KEY(idUsuario))";
-
-    try:
-        x.execute(query)
-    except MySQLdb.Warning:
-        print("Fallo:%s" % query + '\n')
-    print("Tablas creadas")
-
-    conn.commit()
+    # query = "CREATE TABLE Usuario( idUsuario int, nombreUsuario varchar(100), PRIMARY KEY(idUsuario))";
+    #
+    # try:
+    #     x.execute(query)
+    # except MySQLdb.Warning:
+    #     print("Fallo:%s" % query + '\n')
+    # print("Tablas creadas")
+    #
+    # conn.commit()
 
     query = "CREATE TABLE Pedido(idPedido int NOT NULL AUTO_INCREMENT, idUsuario int , idRestaurante int, PRIMARY KEY(idPedido), FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante) ,FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario))";
 
