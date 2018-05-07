@@ -11,6 +11,8 @@
 
 
 import database
+import conversation
+import rules
 
 import telepot
 from telepot.loop import MessageLoop
@@ -19,70 +21,14 @@ from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboar
 from telepot.delegate import pave_event_space, per_chat_id, create_open, per_callback_query_origin
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
 import json
-from watson_developer_cloud import NaturalLanguageUnderstandingV1
-from watson_developer_cloud.natural_language_understanding_v1 \
-  import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, RelationsOptions, SemanticRolesOptions, SentimentOptions, MetadataOptions, EmotionOptions
-from watson_developer_cloud import LanguageTranslatorV2
+
 
 
 
 TOKEN = '511510486:AAEULAaDh8wnpHB5oXydCo149zus3MknZfg'  # @eatbot_bot
 
-natural_language_understanding = NaturalLanguageUnderstandingV1(
-  username='98851fcb-a08a-4596-babb-f1f734c48af8',
-  password='3Hum5Es63rG3',
-  version='2018-03-16')
 
 
-language_translator = LanguageTranslatorV2(
-    username='175989d2-d33d-4a62-8374-453c799047a8',
-    password='xWwfNrCRQr2H',
-)
-
-texto = 'hola, qué tipo de comida tenéis?'
-translation = language_translator.translate(
-    text=texto,
-    model_id='es-en')
-# print(json.dumps(translation, indent=2, ensure_ascii=False))
-
-for key, value in translation.items():
-    if 'translations' in key:
-        translate = value[0].get('translation')
-
-print(translate)
-
-
-response = natural_language_understanding.analyze(
-  text=translate,
-  clean=False,
-  features=Features(
-    entities=EntitiesOptions(),
-    concepts=ConceptsOptions(),
-    categories=CategoriesOptions(),
-    relations=RelationsOptions(),
-    keywords=KeywordsOptions(),
-    semantic_roles= SemanticRolesOptions(),
-    sentiment= SentimentOptions()))
-    # metadata= MetadataOptions(),
-    # emotion= EmotionOptions())
-print(json.dumps(response, indent=2))
-
-print('__________________________________________')
-
-respuesta = natural_language_understanding.analyze(
-  text=texto,
-  clean=False,
-  features=Features(
-    entities=EntitiesOptions(),
-    concepts=ConceptsOptions(),
-    categories=CategoriesOptions(),
-    relations=RelationsOptions(),
-    keywords=KeywordsOptions(),
-    semantic_roles= SemanticRolesOptions()))
-    # sentiment= SentimentOptions()))
-    # metadata= MetadataOptions(),
-    # emotion= EmotionOptions())
-print(json.dumps(respuesta, indent=2))
 
 listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos",
                   "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab Carne", "Kebab Pollo", "Patatas fritas",
@@ -117,38 +63,46 @@ class UserHandler(telepot.helper.ChatHandler):
         print (content_type, chat_type, chat_id)
 
         print(chat_id)
-        print(msg['from']['first_name'])
-
-        listaUsuarios = [[chat_id, msg['from']['first_name']]]
-        database.insertarUsuario(listaUsuarios)
-        database.insertarPedido([[chat_id, 'Casa Jose']])
-        idPedido = database.buscarPedido(chat_id, 'Casa Jose')
-        database.insertarPedidoProducto([[idPedido, 'Costillas']])# for hasta que termine de introducir todos los productos
+        nombre = (msg['from']['first_name'])
 
         mensaje = msg['text']
         print(mensaje)
-        listaDeSaludos = ['hola', 'buenas', 'hey']
 
-        if any(saludo in mensaje for saludo in listaDeSaludos):
-            bot.sendMessage(chat_id, 'Holaaa, te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
-            bot.sendPhoto(chat_id, 'http://elestimulo.com/bienmesabe/wp-content/uploads/sites/7/2016/04/detective.jpg')
+        listaUsuarios = [[chat_id, msg['from']['first_name']]]
+        database.insertarUsuario(listaUsuarios)
 
-        if mensaje == '/start':
 
+        intent, entities = conversation.consultarMensaje(mensaje)
+
+        if intent == 'Default Fallback Intent':
+            bot.sendMessage(chat_id, 'No entiendo a qué te refieres')
+
+        elif intent == 'saludo':
+            bot.sendMessage(chat_id,
+                            'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
+            # bot.sendPhoto(chat_id, 'http://elestimulo.com/bienmesabe/wp-content/uploads/sites/7/2016/04/detective.jpg')
+
+
+        elif intent == 'elegirRestaurante':
+            bot.sendMessage(chat_id, 'Este restaurante tiene estos productos:')
+
+
+
+        elif intent == 'tiposComida':
             tiposDeRestaurante = database.buscarTiposRestaurante()
             str1 = ', '.join(tiposDeRestaurante)
 
-            bot.sendMessage(chat_id, 'Qué tipo de comida te apetece? Tenemos' + str1)
+            bot.sendMessage(chat_id, 'Tenemos diferentes tipos de comida que puedes elegir entre ' + str1)
 
 
 
-        elif mensaje == '/help':
 
-            bot.sendMessage(chat_id, 'Comandos:'
-                                     '\n /buscarCine - Usa este comando para ver la cartelera del cine que quieras.'
-                                     '\n /buscarPelicula - Usa este comando seguido del nombre de una pelicula para buscar los cines mas cercanos en los que se proyecta la pelicula.'
-                                     '\n /cineCercano - Busca los cines mas cercanos basandose en tu ubicacion.'
-                                     '\n /sugerirPelicula - Envia la informacion sobre una pelicula estrenada recientemente al azar.')
+        # database.insertarPedido([[chat_id, 'Casa Jose']])
+        # idPedido = database.buscarPedido(chat_id, 'Casa Jose')
+        # database.insertarPedidoProducto([[idPedido, 'Costillas']])# for hasta que termine de introducir todos los productos
+
+
+
 
 
 bot = telepot.DelegatorBot(TOKEN, [
@@ -164,6 +118,11 @@ bot = telepot.DelegatorBot(TOKEN, [
 #answerer = telepot.helper.Answerer(bot)
 
 bot.message_loop(run_forever='Listening ...')
+
+
+if __name__ == '__main__':
+    rules.init()
+
 
 
 #función que gestiona los mensajes recibidos por el chat
@@ -198,3 +157,75 @@ bot.message_loop(run_forever='Listening ...')
 #                   # callback_query es el boton del chat
 #                   'callback_query': on_callback_query}).run_as_thread()
 # print('Listening ...')
+
+
+
+
+
+# from watson_developer_cloud import NaturalLanguageUnderstandingV1
+# from watson_developer_cloud.natural_language_understanding_v1 \
+#   import Features, EntitiesOptions, KeywordsOptions, ConceptsOptions, CategoriesOptions, RelationsOptions, SemanticRolesOptions, SentimentOptions, MetadataOptions, EmotionOptions
+# from watson_developer_cloud import LanguageTranslatorV2
+
+#
+# natural_language_understanding = NaturalLanguageUnderstandingV1(
+#   username='98851fcb-a08a-4596-babb-f1f734c48af8',
+#   password='3Hum5Es63rG3',
+#   version='2018-03-16')
+#
+#
+# language_translator = LanguageTranslatorV2(
+#     username='175989d2-d33d-4a62-8374-453c799047a8',
+#     password='xWwfNrCRQr2H',
+# )
+#
+# texto = 'hola, qué tipo de comida tenéis?'
+# translation = language_translator.translate(
+#     text=texto,
+#     model_id='es-en')
+# # print(json.dumps(translation, indent=2, ensure_ascii=False))
+#
+# for key, value in translation.items():
+#     if 'translations' in key:
+#         translate = value[0].get('translation')
+#
+# print(translate)
+#
+#
+# response = natural_language_understanding.analyze(
+#   text=translate,
+#   clean=False,
+#   features=Features(
+#     entities=EntitiesOptions(),
+#     concepts=ConceptsOptions(),
+#     categories=CategoriesOptions(),
+#     relations=RelationsOptions(),
+#     keywords=KeywordsOptions(),
+#     semantic_roles= SemanticRolesOptions(),
+#     sentiment= SentimentOptions()))
+#     # metadata= MetadataOptions(),
+#     # emotion= EmotionOptions())
+# print(json.dumps(response, indent=2))
+#
+# print('__________________________________________')
+#
+# respuesta = natural_language_understanding.analyze(
+#   text=texto,
+#   clean=False,
+#   features=Features(
+#     entities=EntitiesOptions(),
+#     concepts=ConceptsOptions(),
+#     categories=CategoriesOptions(),
+#     relations=RelationsOptions(),
+#     keywords=KeywordsOptions(),
+#     semantic_roles= SemanticRolesOptions()))
+#     # sentiment= SentimentOptions()))
+#     # metadata= MetadataOptions(),
+#     # emotion= EmotionOptions())
+# print(json.dumps(respuesta, indent=2))
+
+
+
+
+
+

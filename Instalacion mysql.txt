@@ -56,10 +56,10 @@ CREATE TABLE Pedido(
 
 
 Cómo exportar una bases de datos MySQL
-mysqldump -u root servidor > telegram_bot_db.sql
+mysqldump -u root eatbot > eatbot.sql
 
 Cómo importar una base de datos MySQL
-mysql -u newsBot newBot <  telegram_bot_db.sql
+mysql -u root eatbot <  eatbot.sql
 
 Acceso a la MySql
 mysql -u root -p
