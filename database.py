@@ -8,7 +8,7 @@ def connection():
                            user="root",
                            passwd="",
                            db="eatbot")
-                           
+
     return conn
 
 def insertarUsuario(listaUsuario): #Le llega una lista con el id del usuario y el nombre del usuario
@@ -87,7 +87,7 @@ def cargarProductosBBDD(listaProductos): #Le llega una lista con los nombres de 
     for producto in listaProductos:
 
         query = "INSERT IGNORE INTO Producto (nombreProducto) VALUES ('{0}');" .format(producto)
-        
+
         try:
             x.execute(query)
         except MySQLdb.ProgrammingError:

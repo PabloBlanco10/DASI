@@ -13,8 +13,10 @@
 import database
 import conversation
 import rules
+from pyknow import *
 
 import telepot
+import time
 from telepot.loop import MessageLoop
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
@@ -24,106 +26,142 @@ import json
 
 
 
+class EatBot:
+    def __init__(self):
 
-TOKEN = '511510486:AAEULAaDh8wnpHB5oXydCo149zus3MknZfg'  # @eatbot_bot
+        self.crearBaseDatos()
+
+        # TOKEN = '571166195:AAFEEM3SbBGrSUnsodId-q8TwRQ-yQ3ANOk'  # @eatbotMariabot
+        TOKEN = '511510486:AAEULAaDh8wnpHB5oXydCo149zus3MknZfg'  # @eatbot_bot
+
+        self.bot = telepot.Bot(TOKEN)
+        MessageLoop(self.bot, self.gestionarMensaje).run_as_thread()
+        print('Listening ...')
+
+        # Keep the program running.
+        while 1:
+            time.sleep(10)
 
 
 
-
-listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana", "Pizza cuatro quesos",
-                  "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab Carne", "Kebab Pollo", "Patatas fritas",
-                  "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata", "Costillas"]
-
-listaRestaurantes = [["Restaurante Asiatico","chino"], ["Pizzeria Luigi","italiano"],
-                     ["La mafia","italiano"], ["Durum Doner","turco"], ["Durum kebab","turco"],
-                     ["Korean Style","coreano"], ["Nyu Jao","japones"], ["Burger","americano"],
-                     ["Casa Jose", "español"], ["Mcdonals","americano"], ["American Grill","americano"]]
-
-listaRelacionProductosRestaurantes = [[1,9], [1,10], [2,2], [2,4], [3,2], [3,5], [4,11], [4,12],
-                              [5,11], [5,13], [6,9], [6,14], [7,9], [7,15],
-                              [8, 16], [8,17], [9, 18], [9,19], [10,13],[10,16],
-                              [11,17], [11,19]]
-
-database.borrarBBDD()
-database.crearTablas()
-database.cargarProductosBBDD(listaProductos)
-database.cargarRestaurantesBBDD(listaRestaurantes)
-database.cargarRestaurantesProductosBBDD(listaRelacionProductosRestaurantes)
-database.buscarTiposRestaurante()
-
-listaRestaurantesTipoX = database.buscarRestaurantesDelTipo('chino')
-listaProductosRestauranteX = database.buscarProductosDelRestaurante('Restaurante Asiatico')
-
-class UserHandler(telepot.helper.ChatHandler):
-    def __init__(self, *args, **kwargs):
-        super(UserHandler, self).__init__(*args, **kwargs)
-
-    def on_chat_message(self, msg):
+    def gestionarMensaje(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
-        print (content_type, chat_type, chat_id)
 
-        print(chat_id)
+        # nombre del usuario
         nombre = (msg['from']['first_name'])
 
+        # mensaje del usuario
         mensaje = msg['text']
-        print(mensaje)
 
-        listaUsuarios = [[chat_id, msg['from']['first_name']]]
-        database.insertarUsuario(listaUsuarios)
+        # guardamos el usuario en la bdd
+        usuario = [[chat_id, msg['from']['first_name']]]
+        database.insertarUsuario(usuario)
 
-
+        # llamamos a dialogflow
         intent, entities = conversation.consultarMensaje(mensaje)
 
-        if intent == 'Default Fallback Intent':
-            bot.sendMessage(chat_id, 'No entiendo a qué te refieres')
+        # gestionamos el mensaje
+        engine = rules.EatBotRules()
 
-        elif intent == 'saludo':
-            bot.sendMessage(chat_id,
-                            'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
-            # bot.sendPhoto(chat_id, 'http://elestimulo.com/bienmesabe/wp-content/uploads/sites/7/2016/04/detective.jpg')
+        engine.reset()
+        engine.declare(Fact(intent = intent, restaurante = entities))
+        engine.run()
 
 
-        elif intent == 'elegirRestaurante':
-            bot.sendMessage(chat_id, 'Este restaurante tiene estos productos:')
+        print('gestionando')
 
 
 
-        elif intent == 'tiposComida':
-            tiposDeRestaurante = database.buscarTiposRestaurante()
-            str1 = ', '.join(tiposDeRestaurante)
+    #creacion de la bdd
+    def crearBaseDatos(self):
+        listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana",
+                          "Pizza cuatro quesos",
+                          "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab Carne",
+                          "Kebab Pollo", "Patatas fritas",
+                          "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata",
+                          "Costillas"]
 
-            bot.sendMessage(chat_id, 'Tenemos diferentes tipos de comida que puedes elegir entre ' + str1)
+        listaRestaurantes = [["Restaurante Asiatico", "chino"], ["Pizzeria Luigi", "italiano"],
+                             ["La mafia", "italiano"], ["Durum Doner", "turco"], ["Durum kebab", "turco"],
+                             ["Korean Style", "coreano"], ["Nyu Jao", "japones"], ["Burger", "americano"],
+                             ["Casa Jose", "español"], ["Mcdonals", "americano"], ["American Grill", "americano"]]
+
+        listaRelacionProductosRestaurantes = [[1, 9], [1, 10], [2, 2], [2, 4], [3, 2], [3, 5], [4, 11], [4, 12],
+                                              [5, 11], [5, 13], [6, 9], [6, 14], [7, 9], [7, 15],
+                                              [8, 16], [8, 17], [9, 18], [9, 19], [10, 13], [10, 16],
+                                              [11, 17], [11, 19]]
+
+        database.borrarBBDD()
+        database.crearTablas()
+        database.cargarProductosBBDD(listaProductos)
+        database.cargarRestaurantesBBDD(listaRestaurantes)
+        database.cargarRestaurantesProductosBBDD(listaRelacionProductosRestaurantes)
+
+
+        # database.buscarTiposRestaurante()
+        # listaRestaurantesTipoX = database.buscarRestaurantesDelTipo('chino')
+        # listaProductosRestauranteX = database.buscarProductosDelRestaurante('Restaurante Asiatico')
 
 
 
+if __name__ == '__main__':
+
+    #creamos instancia del bot
+    eatbot = EatBot()
+
+
+
+
+
+# class UserHandler(telepot.helper.ChatHandler):
+#     def __init__(self, *args, **kwargs):
+#         super(UserHandler, self).__init__(*args, **kwargs)
+#
+#     def on_chat_message(self, msg):
+#         content_type, chat_type, chat_id = telepot.glance(msg)
+#
+#         # nombre del usuario
+#         nombre = (msg['from']['first_name'])
+#
+#         # mensaje del usuario
+#         mensaje = msg['text']
+#
+#         # guardamos el usuario en la bdd
+#         usuario = [[chat_id, msg['from']['first_name']]]
+#         database.insertarUsuario(usuario)
+#
+#         # llamamos a dialogflow
+#         intent, entities = conversation.consultarMensaje(mensaje)
+#
+#         # gestionamos el mensaje
+#
+#
+#         f = Fact(intent)
+#
+#         EatBot.gestionarMensaje()
+
+        # if intent == 'Default Fallback Intent':
+        #     self.eatBot.sendMessage(chat_id, 'No entiendo a qué te refieres')
+        #
+        # elif intent == 'saludo':
+        #     self.eatBot.sendMessage(chat_id,
+        #                     'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
+        #     # bot.sendPhoto(chat_id, 'http://elestimulo.com/bienmesabe/wp-content/uploads/sites/7/2016/04/detective.jpg')
+        #
+        #
+        # elif intent == 'elegirRestaurante':
+        #     bot.sendMessage(chat_id, 'Este restaurante tiene estos productos:')
+        #
+        #
+        # elif intent == 'tiposComida':
+        #     tiposDeRestaurante = database.buscarTiposRestaurante()
+        #     str1 = ', '.join(tiposDeRestaurante)
+        #
+        #     bot.sendMessage(chat_id, 'Tenemos diferentes tipos de comida que puedes elegir entre ' + str1)
 
         # database.insertarPedido([[chat_id, 'Casa Jose']])
         # idPedido = database.buscarPedido(chat_id, 'Casa Jose')
         # database.insertarPedidoProducto([[idPedido, 'Costillas']])# for hasta que termine de introducir todos los productos
-
-
-
-
-
-bot = telepot.DelegatorBot(TOKEN, [
-    pave_event_space()(
-        per_chat_id(), create_open, UserHandler, timeout=3600
-    ),
-
-    # pave_event_space()(
-    #     per_callback_query_origin(), create_open, ButtonHandler, timeout=3600)
-    # ,
-])
-
-#answerer = telepot.helper.Answerer(bot)
-
-bot.message_loop(run_forever='Listening ...')
-
-
-if __name__ == '__main__':
-    rules.init()
-
-
 
 #función que gestiona los mensajes recibidos por el chat
 # def on_chat_message(msg):
@@ -225,7 +263,12 @@ if __name__ == '__main__':
 # print(json.dumps(respuesta, indent=2))
 
 
-
+# bot = telepot.DelegatorBot(TOKEN, [
+#     pave_event_space()(
+#         per_chat_id(), create_open, UserHandler, timeout=3600
+#     ),
+# ])
+# bot.message_loop(run_forever='Listening ...')
 
 
 

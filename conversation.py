@@ -5,7 +5,6 @@ CLIENT_ACCESS_TOKEN = '0cec20af732f499ea4532ee576c35fcc'
 
 ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
 
-
 def consultarMensaje(mensaje):
     request = ai.text_request()
     request.lang = 'es'
