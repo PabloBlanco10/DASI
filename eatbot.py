@@ -27,16 +27,25 @@ import json
 
 
 class EatBot:
+    engine = None
+    chat_id = None
+    message = None
+
     def __init__(self):
 
-        self.crearBaseDatos()
+        self.createDatabase()
 
         # TOKEN = '571166195:AAFEEM3SbBGrSUnsodId-q8TwRQ-yQ3ANOk'  # @eatbotMariabot
         TOKEN = '511510486:AAEULAaDh8wnpHB5oXydCo149zus3MknZfg'  # @eatbot_bot
 
         self.bot = telepot.Bot(TOKEN)
-        MessageLoop(self.bot, self.gestionarMensaje).run_as_thread()
+        MessageLoop(self.bot, self.manageMessage).run_as_thread()
         print('Listening ...')
+
+        self.engine = rules.EatBotRules()
+        self.engine.get_bot(self)
+
+
 
         # Keep the program running.
         while 1:
@@ -44,62 +53,70 @@ class EatBot:
 
 
 
-    def gestionarMensaje(self, msg):
+    def manageMessage(self, msg):
         content_type, chat_type, chat_id = telepot.glance(msg)
-
-        # nombre del usuario
-        nombre = (msg['from']['first_name'])
+        self.chat_id = chat_id
 
         # mensaje del usuario
-        mensaje = msg['text']
+        self.message = msg
 
         # guardamos el usuario en la bdd
-        usuario = [[chat_id, msg['from']['first_name']]]
-        database.insertarUsuario(usuario)
+        user = [[chat_id, msg['from']['first_name']]]
+        database.insertUser(user)
 
         # llamamos a dialogflow
-        intent, entities = conversation.consultarMensaje(mensaje)
+        intent, entities = conversation.checkMessage(self.message['text'])
+        #print(intent, entities)
 
         # gestionamos el mensaje
-        engine = rules.EatBotRules()
+        self.engine.reset()
+        self.engine.declare(Fact(intent = intent))
 
-        engine.reset()
-        engine.declare(Fact(intent = intent, restaurante = entities))
-        engine.run()
+        print(intent)
+        for k , v in entities.items():
+            self.engine.declare(Fact(k=v))
+            print(k,v)
+
+        self.engine.run()
 
 
-        print('gestionando')
 
+    def responseGreet(self, nombre):
+        self.bot.sendMessage(self.chat_id, 'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
+
+
+    def responseNotUnderstood(self):
+        self.bot.sendMessage(self.chat_id, 'No te he entendido')
 
 
     #creacion de la bdd
-    def crearBaseDatos(self):
-        listaProductos = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana",
+    def createDatabase(self):
+        productsList = ["Pizza bolognesa", "Pizza margarita", "Pizza Hawaiana", "Pizza Pollo", "Pizza Napolitana",
                           "Pizza cuatro quesos",
                           "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab Carne",
                           "Kebab Pollo", "Patatas fritas",
                           "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata",
                           "Costillas"]
 
-        listaRestaurantes = [["Restaurante Asiatico", "chino"], ["Pizzeria Luigi", "italiano"],
+        restaurantsList = [["Restaurante Asiatico", "chino"], ["Pizzeria Luigi", "italiano"],
                              ["La mafia", "italiano"], ["Durum Doner", "turco"], ["Durum kebab", "turco"],
                              ["Korean Style", "coreano"], ["Nyu Jao", "japones"], ["Burger", "americano"],
                              ["Casa Jose", "español"], ["Mcdonals", "americano"], ["American Grill", "americano"]]
 
-        listaRelacionProductosRestaurantes = [[1, 9], [1, 10], [2, 2], [2, 4], [3, 2], [3, 5], [4, 11], [4, 12],
+        restaurantProductList = [[1, 9], [1, 10], [2, 2], [2, 4], [3, 2], [3, 5], [4, 11], [4, 12],
                                               [5, 11], [5, 13], [6, 9], [6, 14], [7, 9], [7, 15],
                                               [8, 16], [8, 17], [9, 18], [9, 19], [10, 13], [10, 16],
                                               [11, 17], [11, 19]]
 
-        database.borrarBBDD()
-        database.crearTablas()
-        database.cargarProductosBBDD(listaProductos)
-        database.cargarRestaurantesBBDD(listaRestaurantes)
-        database.cargarRestaurantesProductosBBDD(listaRelacionProductosRestaurantes)
+        database.deleteDatabase()
+        database.createTables()
+        database.insertProducts(productsList)
+        database.insertRestaurants(restaurantsList)
+        database.insertRestaurantProducts(restaurantProductList)
 
 
-        # database.buscarTiposRestaurante()
-        # listaRestaurantesTipoX = database.buscarRestaurantesDelTipo('chino')
+        # database.searchRestaurantType()
+        # listaRestaurantesTipoX = database.searchRestaurantType('chino')
         # listaProductosRestauranteX = database.buscarProductosDelRestaurante('Restaurante Asiatico')
 
 

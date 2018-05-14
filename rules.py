@@ -2,15 +2,49 @@ from pyknow import *
 
 
 class EatBotRules(KnowledgeEngine):
+    bot = None
 
-    @Rule(Fact(intent = 'tipoComida', restaurante = W()))
-    def reglaTipoComida(self):
+    def get_bot(self, bot):
+        self.bot = bot
+
+    @Rule(Fact(intent='Default Fallback Intent'))
+    def ruleNotUnderstood(self):
+        # no te entiendo
+        self.bot.responseNotUnderstood
+
+    @Rule(Fact(intent='chooseFoodType'),
+          Fact(foodType=MATCH.foodType))
+    def ruleFoodTypeWithFoodType(self, foodType):
+        # el usuario ya ha elegido el tipo de comida
+        self.bot.responseFoodTypeWithFoodType('Regla de tipo de comida')
+
+
+    @Rule(Fact(intent = 'chooseFoodType'),
+          NOT(Fact(foodType=W())))
+    def ruleFoodTypeWithoutFoodType(self):
     #mostrar al usuario los tipos de comida
-        print('Regla de tipo de comida')
+        self.bot.responseFoodTypeWithoutFoodType('Regla de tipo de comida')
 
-    @Rule(Fact(intent='saludo', restaurante = W()))
-    def reglaTipoComida(self):
+
+    @Rule(Fact(intent='greet'))
+    def ruleGreet(self):
         # mostrar al usuario los tipos de comida
-        print('Regla de saludo')
+        name = self.bot.message['from']['first_name']
+        self.bot.responseGreet(name)
+
+
+    # @Rule(Fact(intent='chooseRestaurant', entities=None))
+    # def ruleChooseRestaurant(self, restaurante):
+    #     # mostrar al usuario los tipos de comida
+    #     print('Regla de saludo')
+    #     self.bot.response('Regla de saludo')
+    #
+    #
+    # @Rule(Fact(intent='chooseRestaurant', entities=MATCH.restaurante))
+    # def ruleChooseRestaurant(self, restaurante):
+    #     # mostrar al usuario los tipos de comida
+    #     print('Regla de saludo')
+    #     self.bot.response('Regla de saludo')
+
 
 

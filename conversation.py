@@ -5,11 +5,11 @@ CLIENT_ACCESS_TOKEN = '0cec20af732f499ea4532ee576c35fcc'
 
 ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
 
-def consultarMensaje(mensaje):
+def checkMessage(message):
     request = ai.text_request()
     request.lang = 'es'
 
-    request.query = mensaje
+    request.query = message
 
     response = json.loads(request.getresponse().read())
 
@@ -18,6 +18,8 @@ def consultarMensaje(mensaje):
     metadata = result.get('metadata')
     intent = metadata.get('intentName')
     entities = result.get('parameters')
+
+    print(intent, entities)
 
 
     return intent, entities
