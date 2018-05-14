@@ -16,14 +16,14 @@ class EatBotRules(KnowledgeEngine):
           Fact(foodType=MATCH.foodType))
     def ruleFoodTypeWithFoodType(self, foodType):
         # el usuario ya ha elegido el tipo de comida
-        self.bot.responseFoodTypeWithFoodType('Regla de tipo de comida')
+        self.bot.responseFoodTypeWithFoodType
 
 
     @Rule(Fact(intent = 'chooseFoodType'),
           NOT(Fact(foodType=W())))
     def ruleFoodTypeWithoutFoodType(self):
     #mostrar al usuario los tipos de comida
-        self.bot.responseFoodTypeWithoutFoodType('Regla de tipo de comida')
+        self.bot.responseFoodTypeWithoutFoodType
 
 
     @Rule(Fact(intent='greet'))

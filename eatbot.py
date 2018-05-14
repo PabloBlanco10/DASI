@@ -74,8 +74,14 @@ class EatBot:
 
         print(intent)
         for k , v in entities.items():
-            self.engine.declare(Fact(k=v))
+            f = Fact()
+            f[k] = v
+            if k != '' and v != '':
+                self.engine.declare(f)
             print(k,v)
+
+        print('------')
+        print(self.engine.facts)
 
         self.engine.run()
 
