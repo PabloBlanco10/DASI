@@ -28,6 +28,7 @@ def insertUser(listUser): #Le llega una lista con el id del usuario y el nombre 
     conn.close()
 
 
+
 def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido y el id del producto
     conn = connection()
     x = conn.cursor()
@@ -44,6 +45,7 @@ def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido 
         conn.commit()
         x.close()
         conn.close()
+
 
 
 def insertOrder(orderList): #Le llega una lista con el usuario que hace el pedido y el nombre del restaurante que elije
@@ -64,6 +66,7 @@ def insertOrder(orderList): #Le llega una lista con el usuario que hace el pedid
     conn.close()
 
 
+
 def insertProducts(productsList): #Le llega una lista con los nombres de los productos
     conn = connection()
     x = conn.cursor()
@@ -77,6 +80,7 @@ def insertProducts(productsList): #Le llega una lista con los nombres de los pro
     conn.commit()
     x.close()
     conn.close()
+
 
 
 def insertRestaurants(restaurantsList): #Le llega una lista con el nombre del restaurante y el tipo de restaurante
@@ -96,6 +100,7 @@ def insertRestaurants(restaurantsList): #Le llega una lista con el nombre del re
     conn.close()
 
 
+
 def insertRestaurantProducts(restaurantProductList): #Le llega una lista con el id del restaurante y el id del producto
     conn = connection()
     x = conn.cursor()
@@ -112,6 +117,7 @@ def insertRestaurantProducts(restaurantProductList): #Le llega una lista con el 
     conn.commit()
     x.close()
     conn.close()
+
 
 
 def deleteDatabase():
@@ -150,6 +156,7 @@ def deleteDatabase():
     conn.commit()
     x.close()
     conn.close()
+
 
 
 def createTables():
@@ -201,7 +208,8 @@ def createTables():
     conn.close()
 
 
-def searchRestaurantType(): #Devuelve la lista de los tipos de restaurantes
+
+def searchFoodType(): #Devuelve la lista de los tipos de restaurantes
     conn = connection()
     x = conn.cursor()
     typeRestaurantList = []
@@ -216,6 +224,7 @@ def searchRestaurantType(): #Devuelve la lista de los tipos de restaurantes
     x.close()
     conn.close()
     return typeRestaurantList
+
 
 
 def searchRestaurantType(restaurantType): #Devuelve una lista de los restaurantes de un tipo

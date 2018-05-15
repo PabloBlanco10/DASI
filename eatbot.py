@@ -27,7 +27,7 @@ import json
 
 
 class EatBot:
-    engine = None
+    eatBotRules = None
     chat_id = None
     message = None
 
@@ -42,10 +42,9 @@ class EatBot:
         MessageLoop(self.bot, self.manageMessage).run_as_thread()
         print('Listening ...')
 
-        self.engine = rules.EatBotRules()
-        self.engine.get_bot(self)
-
-
+        self.eatBotRules = rules.EatBotRules()
+        self.eatBotRules.setBot(self)
+        self.eatBotConversation = conversation.EatBotConversation()
 
         # Keep the program running.
         while 1:
@@ -65,34 +64,93 @@ class EatBot:
         database.insertUser(user)
 
         # llamamos a dialogflow
-        intent, entities = conversation.checkMessage(self.message['text'])
-        #print(intent, entities)
+        intent, entities = self.eatBotConversation.checkMessage(self.message['text'])
+
 
         # gestionamos el mensaje
-        self.engine.reset()
-        self.engine.declare(Fact(intent = intent))
+        self.eatBotRules.reset()
 
-        print(intent)
+        if intent != '':
+            self.eatBotRules.declare(Fact(intent = intent))
+
         for k , v in entities.items():
             f = Fact()
             f[k] = v
             if k != '' and v != '':
-                self.engine.declare(f)
-            print(k,v)
+                self.eatBotRules.declare(f)
 
-        print('------')
-        print(self.engine.facts)
-
-        self.engine.run()
+        print(self.eatBotRules.facts)
+        self.eatBotRules.run()
 
 
 
     def responseGreet(self, nombre):
+        #saludo
         self.bot.sendMessage(self.chat_id, 'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
 
 
+
     def responseNotUnderstood(self):
-        self.bot.sendMessage(self.chat_id, 'No te he entendido')
+        #no hemos reconocido nada
+        self.bot.sendMessage(self.chat_id, 'Lo siento, no sé a que te refieres... 🤔🤔')
+
+
+
+    def responseFoodTypeWithoutFoodType(self):
+        #tipo de comida no reconocido, mostramos los tipos de comida
+        foodTypeList = database.searchFoodType()
+        self.bot.sendMessage(self.chat_id, 'Qué te apetece pedir? Tenemos estos tipos de comida disponibles')
+
+        i = 0
+        for foodType in foodTypeList:
+            i += 1
+            self.bot.sendMessage(self.chat_id, str(i) + '. ' + foodType)
+
+        self.eatBotConversation.addContext('selectFoodType')
+
+
+    def responseFoodTypeWithFoodType(self, foodType):
+        #tipo de comida reconocido, mostramos restaurantes de ese tipo
+        restaurantList = database.searchRestaurantType(foodType)
+        if len(restaurantList) > 0 :
+            self.bot.sendMessage(self.chat_id, 'Tenemos estos resturantes que cuentan con tipo de comida ' + foodType)
+            i = 0
+            for restaurant in restaurantList:
+                i += 1
+                self.bot.sendMessage(self.chat_id, str(i) + '. ' + restaurant)
+
+            self.bot.sendMessage(self.chat_id, 'Cuál te apetece? 🍽')
+            self.eatBotConversation.addContext('selectRestaurant')
+
+        else:
+            self.responseNotUnderstood()
+
+
+
+    def responseChooseRestaurant(self, restaurant):
+        #restauarante elegido, mostramos productos
+        productList = database.searchProductsFromRestaurant(restaurant)
+
+        if len(productList) > 0 :
+            self.bot.sendMessage(self.chat_id, 'Has elegido el restaurante ' + restaurant)
+            self.bot.sendMessage(self.chat_id, 'Este restaurante tiene estos productos')
+            i = 0
+            for product in productList:
+                i += 1
+                self.bot.sendMessage(self.chat_id, str(i) + '. ' + product)
+
+            self.bot.sendMessage(self.chat_id, 'Qué te apetece? 🤤')
+
+        else:
+            self.responseNotUnderstood()
+
+
+    def responseChooseProduct(self, product):
+        #producto elegido
+        self.bot.sendMessage(self.chat_id, '')
+
+
+
 
 
     #creacion de la bdd
@@ -104,10 +162,10 @@ class EatBot:
                           "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata",
                           "Costillas"]
 
-        restaurantsList = [["Restaurante Asiatico", "chino"], ["Pizzeria Luigi", "italiano"],
-                             ["La mafia", "italiano"], ["Durum Doner", "turco"], ["Durum kebab", "turco"],
-                             ["Korean Style", "coreano"], ["Nyu Jao", "japones"], ["Burger", "americano"],
-                             ["Casa Jose", "español"], ["Mcdonals", "americano"], ["American Grill", "americano"]]
+        restaurantsList = [["Restaurante Asiatico", "china"], ["Pizzeria Luigi", "italiana"],
+                             ["La mafia", "italiana"], ["Durum Doner", "turca"], ["Durum kebab", "turca"],
+                             ["Korean Style", "coreana"], ["Nyu Jao", "japonesa"], ["Burger", "americana"],
+                             ["Casa Jose", "española"], ["Mcdonals", "americana"], ["American Grill", "americana"]]
 
         restaurantProductList = [[1, 9], [1, 10], [2, 2], [2, 4], [3, 2], [3, 5], [4, 11], [4, 12],
                                               [5, 11], [5, 13], [6, 9], [6, 14], [7, 9], [7, 15],
