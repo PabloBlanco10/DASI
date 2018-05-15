@@ -30,6 +30,8 @@ class EatBot:
     eatBotRules = None
     chat_id = None
     message = None
+    restaurant = None
+    productOrder = None
 
     def __init__(self):
 
@@ -125,12 +127,23 @@ class EatBot:
         else:
             self.responseNotUnderstood()
 
+    def responseChooseRestaurantWithoutRestaurant(self):
+        #nombre de restaurante no reconocido, mostramos todos los restaurantes
+        restaurantList = database.searchRestaurant()
+        self.bot.sendMessage(self.chat_id, 'Qué restaurante te apetece? Estos son los restaurantes disponibles')
+
+        i = 0
+        for restaurant in restaurantList:
+            i += 1
+            self.bot.sendMessage(self.chat_id, str(i) + '. ' + restaurant)
+
+        self.eatBotConversation.addContext('selectRestaurant')
 
 
-    def responseChooseRestaurant(self, restaurant):
+    def responseChooseRestaurantWithRestaurant(self, restaurant):
         #restauarante elegido, mostramos productos
         productList = database.searchProductsFromRestaurant(restaurant)
-
+        self.restaurant = restaurant
         if len(productList) > 0 :
             self.bot.sendMessage(self.chat_id, 'Has elegido el restaurante ' + restaurant)
             self.bot.sendMessage(self.chat_id, 'Este restaurante tiene estos productos')
@@ -139,7 +152,9 @@ class EatBot:
                 i += 1
                 self.bot.sendMessage(self.chat_id, str(i) + '. ' + product)
 
-            self.bot.sendMessage(self.chat_id, 'Qué te apetece? 🤤')
+            self.bot.sendMessage(self.chat_id, 'Qué te apetece?🤤 Elige cada producto en una linea y avisame cuando termines '+
+                                 'por favor😋')
+            self.eatBotConversation.addContext('selectProduct')
 
         else:
             self.responseNotUnderstood()
@@ -147,7 +162,19 @@ class EatBot:
 
     def responseChooseProduct(self, product):
         #producto elegido
-        self.bot.sendMessage(self.chat_id, '')
+        self.productOrder = database.searchIDProduct(product)
+        self.eatBotConversation.addContext('selectProduct')
+
+    def responseFinishOrder(self):
+        idRestaurant = database.searchIDRestaurant(self.restaurant)
+        database.insertOrder((self.chat_id, idRestaurant))
+        idOrder = database.searchOrder(self.chat_id, idRestaurant)
+
+        for product in self.productOrder:
+
+             database.insertOrderProduct((idOrder, product))
+
+        self.bot.sendMessage(self.chat_id,'Tu pedido número ' + idOrder + 'se ha realizado con exito')
 
 
 

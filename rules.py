@@ -13,7 +13,11 @@ class EatBotRules(KnowledgeEngine):
         # no te entiendo
         self.bot.responseNotUnderstood()
 
-
+    @Rule(Fact(intent='greet'))
+    def ruleGreet(self):
+        # saludar al usuario
+        name = self.bot.message['from']['first_name']
+        self.bot.responseGreet(name)
 
     @Rule(Fact(intent = 'chooseFoodType'),
           NOT(Fact(foodType=W())))
@@ -30,7 +34,6 @@ class EatBotRules(KnowledgeEngine):
         self.bot.responseFoodTypeWithFoodType(foodType)
 
 
-
     @Rule(Fact(intent='selectFoodType'),
           Fact(foodType=MATCH.foodType))
     def ruleFoodTypeSelectFoodType(self, foodType):
@@ -38,26 +41,34 @@ class EatBotRules(KnowledgeEngine):
         self.bot.responseFoodTypeWithFoodType(foodType)
 
 
-
-    @Rule(Fact(intent='greet'))
-    def ruleGreet(self):
-        # saludar al usuario
-        name = self.bot.message['from']['first_name']
-        self.bot.responseGreet(name)
-
+    @Rule(Fact(intent='chooseRestaurant'),
+          NOT(Fact(restaurant=W())))
+    def ruleChooseRestaurantWithoutRestaurant(self):
+        # mostrar al usuario los restaurantes
+        self.bot.responseChooseRestaurantWithoutRestaurant()
 
 
     @Rule(Fact(intent='chooseRestaurant'),
           Fact(restaurant=MATCH.restaurant))
-    def ruleChooseRestaurant(self, restaurant):
+    def ruleChooseRestaurantWithRestaurant(self, restaurant):
         # mostrar al usuario el restaurante elegido y los productos que hay
-        self.bot.responseChooseRestaurant(restaurant)
+        self.bot.responseChooseRestaurantWithRestaurant(restaurant)
 
 
+    @Rule(Fact(intent='selectRestaurant'),
+          Fact(restaurant=MATCH.restaurant))
+    def ruleChooseRestaurantSelectRestaurant(self, restaurant):
+        # el usuario ya ha elegido el tipo de comida
+        self.bot.responseChooseRestaurantWithRestaurant(restaurant)
 
     @Rule(Fact(intent='chooseProduct'),
           Fact(product=MATCH.product))
     def ruleChooseProduct(self, product):
         # eleccion de producto
         self.bot.responseChooseProduct(product)
+
+    @Rule(Fact(intent='confirmOrder'))
+    def ruleChooseProduct(self):
+        # eleccion de producto
+        self.bot.responseFinishOrder()
 

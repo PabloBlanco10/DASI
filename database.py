@@ -35,7 +35,7 @@ def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido 
     for orderProduct in orderProducts:
         idPedido = orderProduct[0][0]
         nombreProducto = orderProduct[1]
-        idProducto = buscarIDProdcuto(nombreProducto)
+        idProducto = searchIDProduct(nombreProducto)
         query = "INSERT IGNORE INTO PedidoProducto (idPedido, idProducto) VALUES ('{0}', '{1}');".format(idPedido[0], idProducto)
         try:
             x.execute(query)
@@ -54,7 +54,7 @@ def insertOrder(orderList): #Le llega una lista con el usuario que hace el pedid
     for order in orderList:
         idUser = order[0]
         nameRestaurant = order[1]
-        idRestaurante = buscarIDRestaurante(nameRestaurant)
+        idRestaurante = searchIDRestaurant(nameRestaurant)
         query = "INSERT IGNORE INTO Pedido (idUsuario, idRestaurante) VALUES ('{0}', '{1}');".format(order[0], idRestaurante)
         try:
             x.execute(query)
@@ -232,7 +232,25 @@ def searchRestaurantType(restaurantType): #Devuelve una lista de los restaurante
     x = conn.cursor()
     listaRestaurantes = []
     escaped = re.escape(restaurantType)
-    query = "SELECT DISTINCT nombreRestaurante FROM Restaurante WHERE tipoRestaurante = '{0}' ;".format(escaped)
+    query = "SELECT DISTINCT nombreRestaurante FROM Restaurante WHERE tipoRestaurante LIKE '%s' " %("%" + restaurantType + "%")
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+    for line in x:
+        listaRestaurantes.append(line[0])
+    conn.commit()
+    x.close()
+    conn.close()
+    return listaRestaurantes
+
+
+def searchRestaurant(): #Devuelve una lista de los restaurantes
+    conn = connection()
+    x = conn.cursor()
+    listaRestaurantes = []
+
+    query = "SELECT DISTINCT nombreRestaurante FROM Restaurante;"
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
@@ -248,7 +266,7 @@ def searchRestaurantType(restaurantType): #Devuelve una lista de los restaurante
 def searchIDRestaurant(restaurantName): #Devuelve el id del restaurante introducido
     conn = connection()
     x = conn.cursor()
-    query = "SELECT DISTINCT idRestaurante FROM Restaurante WHERE nombreRestaurante = '{0}' ;".format(restaurantName)
+    query = "SELECT DISTINCT idRestaurante FROM Restaurante WHERE nombreRestaurante LIKE '%s' " %("%" + restaurantName + "%")
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
@@ -264,7 +282,7 @@ def searchIDRestaurant(restaurantName): #Devuelve el id del restaurante introduc
 def searchIDProduct(productName): #Devuelve el id del restaurante introducido
     conn = connection()
     x = conn.cursor()
-    query = "SELECT DISTINCT idProducto FROM Producto WHERE nombreProducto = '{0}' ;".format(productName)
+    query = "SELECT DISTINCT idProducto FROM Producto WHERE nombreProducto LIKE '%s' " %("%" + productName + "%")
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
@@ -283,7 +301,7 @@ def searchProductsFromRestaurant(restaurantName): #Busca los productos de un res
     productsList = []
     escaped = re.escape(restaurantName)
     query = "SELECT DISTINCT nombreProducto FROM Producto NATURAL JOIN RestauranteProducto NATURAL JOIN" \
-            " Restaurante WHERE nombreRestaurante = '{0}' ;".format(escaped)
+            " Restaurante WHERE nombreRestaurante LIKE '%s' " %("%" + restaurantName + "%")
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
@@ -299,8 +317,8 @@ def searchProductsFromRestaurant(restaurantName): #Busca los productos de un res
 def searchOrder(idUser, restaurantName): #Devuelve el id del ultimo pedido que se ha insertado
     conn = connection()
     x = conn.cursor()
-    idRestaurante = searchIDRestaurant(restaurantName)
-    query = "SELECT idPedido FROM Pedido WHERE idUsuario = '%s'  AND idRestaurante = '%s' AND idPedido = (SELECT max(idPedido) FROM Pedido)" % (idUsuario, idRestaurante)
+    idRestaurant = searchIDRestaurant(restaurantName)
+    query = "SELECT idPedido FROM Pedido WHERE idUsuario = '%s'  AND idRestaurante = '%s' AND idPedido = (SELECT max(idPedido) FROM Pedido)" % (idUser, idRestaurant)
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:

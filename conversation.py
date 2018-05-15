@@ -34,7 +34,7 @@ class EatBotConversation:
         print(entities)
 
         if intent != 'Default Fallback Intent':
-            context = None
+            self.context = None
 
         return intent, entities
 
