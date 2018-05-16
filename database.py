@@ -51,16 +51,17 @@ def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido 
 def insertOrder(orderList): #Le llega una lista con el usuario que hace el pedido y el nombre del restaurante que elije
     conn = connection()
     x = conn.cursor()
-    for order in orderList:
-        idUser = order[0]
-        nameRestaurant = order[1]
-        idRestaurante = searchIDRestaurant(nameRestaurant)
-        query = "INSERT IGNORE INTO Pedido (idUsuario, idRestaurante) VALUES ('{0}', '{1}');".format(order[0], idRestaurante)
-        try:
-            x.execute(query)
-        except MySQLdb.ProgrammingError:
-            print("La siguiente query ha fallado:%s" % query + '\n')
-        print("El pedido del usuario " + str(idUser) + " para el restaurante: "+ str(nameRestaurant) +" ha sido añadido")
+    #for order in orderList:
+    idUser = orderList[0]
+    nameRestaurant = orderList[1]
+    idRestaurante = searchIDRestaurant(nameRestaurant)
+    query = "INSERT IGNORE INTO Pedido (idUsuario, idRestaurante) VALUES ('{0}', '{1}');".format(idUser, idRestaurante)
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado:%s" % query + '\n')
+
+    print("El pedido del usuario " + str(idUser) + " para el restaurante: "+ str(nameRestaurant) +" ha sido añadido")
     conn.commit()
     x.close()
     conn.close()

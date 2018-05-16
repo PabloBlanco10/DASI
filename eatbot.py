@@ -166,9 +166,9 @@ class EatBot:
         self.eatBotConversation.addContext('selectProduct')
 
     def responseFinishOrder(self):
-        idRestaurant = database.searchIDRestaurant(self.restaurant)
-        database.insertOrder((self.chat_id, idRestaurant))
-        idOrder = database.searchOrder(self.chat_id, idRestaurant)
+        #idRestaurant = database.searchIDRestaurant(self.restaurant)
+        database.insertOrder((self.chat_id, self.restaurant))
+        idOrder = database.searchOrder(self.chat_id, self.restaurant)
 
         for product in self.productOrder:
 
