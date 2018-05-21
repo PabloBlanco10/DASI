@@ -147,6 +147,10 @@ class EatBot:
         self.restaurant = restaurant
         if len(productList) > 0 :
             self.bot.sendMessage(self.chat_id, 'Has elegido el restaurante ' + restaurant)
+            opinion = database.searchOpinionFromRestaurant(database.searchIDRestaurant(restaurant))
+            if opinion != None:
+                self.bot.sendMessage(self.chat_id, 'Tu última opinión de este restaurante fue: ' + str(opinion))
+
             self.bot.sendMessage(self.chat_id, 'Este restaurante tiene estos productos')
             i = 0
             for product in productList:
@@ -190,7 +194,6 @@ class EatBot:
     def responseMakeOpinion(self):
         opinion = self.eatBotConversation.getOpinion()
         database.insertOpinion((self.idLastOrder, opinion))
-
 
 
     #creacion de la bdd

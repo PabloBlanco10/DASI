@@ -46,7 +46,7 @@ def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido 
 def insertOpinion(opinion):
     conn = connection()
     x = conn.cursor()
-    query = "UPDATE Pedido SET opinion = '%s' WHERE idPedido = '%i' " % (opinion[1], opinion[0])
+    query = "UPDATE Pedido SET opinion = '%s' WHERE idPedido = '%i' ON DUPLICATE KEY UPDATE" % (opinion[1], opinion[0])
     try:
         x.execute(query)
     except MySQLdb.ProgrammingError:
@@ -334,6 +334,22 @@ def searchProductsFromRestaurant(restaurantName): #Busca los productos de un res
     x.close()
     conn.close()
     return productsList
+
+
+def searchOpinionFromRestaurant(restaurantId): #Busca los productos de un restaurante
+    conn = connection()
+    x = conn.cursor()
+    query = "SELECT opinion FROM Pedido WHERE idRestaurante = '%i' ORDER BY idPedido DESC LIMIT 1;" % (restaurantId)
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+    opinion = x.fetchall()
+    opinion = opinion[0][0]
+    conn.commit()
+    x.close()
+    conn.close()
+    return opinion
 
 
 def searchOrder(idUser, restaurantName): #Devuelve el id del ultimo pedido que se ha insertado
