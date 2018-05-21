@@ -1,6 +1,7 @@
 import MySQLdb
 import requests
 import re
+import random
 
 
 def connection():
@@ -345,7 +346,8 @@ def searchOpinionFromRestaurant(restaurantId): #Busca los productos de un restau
     except MySQLdb.ProgrammingError:
         print("La siguiente query ha fallado: " + query + '\n')
     opinion = x.fetchall()
-    opinion = opinion[0][0]
+    if len(opinion) > 0:
+        opinion = opinion[0][0]
     conn.commit()
     x.close()
     conn.close()
@@ -370,6 +372,60 @@ def searchOrder(idUser, restaurantName): #Devuelve el id del ultimo pedido que s
     return idOrder
 
 
+
+def searchOrderForUser(idUser): #Devuelve el id del ultimo restaurante en el que ha pedido el usuario
+
+    conn = connection()
+    x = conn.cursor()
+    query = "SELECT idRestaurante FROM Pedido WHERE idUsuario = '%i' ORDER BY idPedido DESC LIMIT 1;" % (idUser)
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+    idRestaurant = x.fetchall()
+    idRestaurant = idRestaurant[0][0]
+    conn.commit()
+    x.close()
+    conn.close()
+    return idRestaurant
+
+
+def searchRestaurantForOrder(idRestaurant): #Devuelve el tipo de restaurante de ese idRestaurante
+    conn = connection()
+    x = conn.cursor()
+    query = "SELECT tipoRestaurante FROM Restaurante WHERE idRestaurante = '%i';" % (idRestaurant)
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+    restaurantType = x.fetchall()
+    restaurantType = restaurantType[0][0]
+    conn.commit()
+    x.close()
+    conn.close()
+    return restaurantType
+
+
+def searchRestaurantTypeSimilar(restaurantType, idRestaurant): #Devuelve los restaurantes de ese tipo
+
+    conn = connection()
+    x = conn.cursor()
+    restaurantName = []
+
+    query = "SELECT nombreRestaurante FROM Restaurante WHERE tipoRestaurante = '%s' AND idRestaurante <> '%i';" % (restaurantType, idRestaurant)
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado: " + query + '\n')
+
+
+    for line in x:
+        restaurantName.append(line[0])
+    conn.commit()
+    x.close()
+    conn.close()
+    restaurant = random.choice(restaurantName)
+    return restaurant
 
 # def cargarRestaurantesProductosBBDD(listaProductosRestaurantes):
 #     conn = connection()

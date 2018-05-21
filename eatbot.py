@@ -33,6 +33,8 @@ class EatBot:
     restaurant = None
     productOrder = None
     idLastOrder = None
+    restaurantNameSuggestion = None
+
 
     def __init__(self):
 
@@ -90,6 +92,15 @@ class EatBot:
     def responseGreet(self, nombre):
         #saludo
         self.bot.sendMessage(self.chat_id, 'Hola ' + nombre +  ' te apetece comer algo? Sólo tienes que decir el tipo de comida que buscas !')
+        idRestaurant = database.searchOrderForUser(self.chat_id)
+
+        #miramos si ha hecho algún pedido anteriormente y le ofrecemos al usuario la opción de elegir un restaurante del mismo tipo
+        if idRestaurant != None:
+            foodType = database.searchRestaurantForOrder(idRestaurant)
+            restaurantName = database.searchRestaurantTypeSimilar(foodType, idRestaurant)
+            self.restaurantNameSuggestion = restaurantName
+            self.bot.sendMessage(self.chat_id, 'Tu último pedido fue de comida ' + foodType + ' te apetece pedir en el restaurante ' + restaurantName + ' que es del mismo estilo ?')
+            self.eatBotConversation.addContext('responseRestaurantSuggestion')
 
 
 
@@ -148,7 +159,7 @@ class EatBot:
         if len(productList) > 0 :
             self.bot.sendMessage(self.chat_id, 'Has elegido el restaurante ' + restaurant)
             opinion = database.searchOpinionFromRestaurant(database.searchIDRestaurant(restaurant))
-            if opinion != None:
+            if len(opinion) > 0:
                 self.bot.sendMessage(self.chat_id, 'Tu última opinión de este restaurante fue: ' + str(opinion))
 
             self.bot.sendMessage(self.chat_id, 'Este restaurante tiene estos productos')
@@ -161,7 +172,6 @@ class EatBot:
                                  'por favor😋')
             self.eatBotConversation.addContext('selectProduct')
             self.productOrder = []
-
 
         else:
             self.responseNotUnderstood()
@@ -194,6 +204,15 @@ class EatBot:
     def responseMakeOpinion(self):
         opinion = self.eatBotConversation.getOpinion()
         database.insertOpinion((self.idLastOrder, opinion))
+
+
+    def responseMakeOpinionYes(self):
+       self.responseChooseRestaurantWithRestaurant(self.restaurantNameSuggestion)
+
+
+    def responseMakeOpinionNo(self):
+        self.bot.sendMessage(self.chat_id, '¡Vaya! qué lástima, otra vez será...')
+
 
 
     #creacion de la bdd

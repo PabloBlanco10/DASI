@@ -74,5 +74,15 @@ class EatBotRules(KnowledgeEngine):
 
     @Rule(Fact(intent='makeOpinion'))
     def ruleMakeOpinion(self):
-        # hacer opinion
+        # expresar opinion
         self.bot.responseMakeOpinion()
+
+    @Rule(Fact(intent='responseRestaurantSuggestionYes'))
+    def ruleMakeOpinionYes(self):
+        # responder a restaurante sugerido
+        self.bot.responseMakeOpinionYes()
+
+    @Rule(Fact(intent='responseRestaurantSuggestionNo'))
+    def ruleMakeOpinionNo(self):
+        # responder a restaurante sugerido
+        self.bot.responseMakeOpinionNo()
