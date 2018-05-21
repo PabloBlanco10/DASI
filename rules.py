@@ -69,6 +69,10 @@ class EatBotRules(KnowledgeEngine):
 
     @Rule(Fact(intent='confirmOrder'))
     def ruleFinishOrder(self):
-        # eleccion de producto
+        # confirmar pedido
         self.bot.responseFinishOrder()
 
+    @Rule(Fact(intent='makeOpinion'))
+    def ruleMakeOpinion(self):
+        # hacer opinion
+        self.bot.responseMakeOpinion()

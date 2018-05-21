@@ -56,7 +56,7 @@ CREATE TABLE Pedido(
 
 
 Cómo exportar una bases de datos MySQL
-mysqldump -u root eatbot > eatbot.sql
+mysql -u root eatbot > eatbot.sql
 
 Cómo importar una base de datos MySQL
 mysql -u root eatbot <  eatbot.sql

@@ -8,6 +8,7 @@ class EatBotConversation:
         CLIENT_ACCESS_TOKEN = '0cec20af732f499ea4532ee576c35fcc'
         self.ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
         self.context = None
+        self.opinion = None
 
 
     def checkMessage(self, message):
@@ -21,6 +22,7 @@ class EatBotConversation:
             request.resetContexts = True
 
         request.query = message
+        print('contexto:' + str(request.contexts))
 
         response = json.loads(request.getresponse().read())
 
@@ -36,8 +38,15 @@ class EatBotConversation:
         if intent != 'Default Fallback Intent':
             self.context = None
 
+        if intent == 'makeOpinion':
+            self.opinion = message
+
+
         return intent, entities
 
 
     def addContext(self, context):
         self.context = context
+
+    def getOpinion(self):
+        return self.opinion

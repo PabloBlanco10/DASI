@@ -32,20 +32,29 @@ def insertUser(listUser): #Le llega una lista con el id del usuario y el nombre 
 def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido y el id del producto
     conn = connection()
     x = conn.cursor()
-    for orderProduct in orderProducts:
-        idPedido = orderProduct[0][0]
-        nombreProducto = orderProduct[1]
-        idProducto = searchIDProduct(nombreProducto)
-        query = "INSERT IGNORE INTO PedidoProducto (idPedido, idProducto) VALUES ('{0}', '{1}');".format(idPedido[0], idProducto)
-        try:
-            x.execute(query)
-        except MySQLdb.ProgrammingError:
-            print("La siguiente query ha fallado:%s" % query + '\n')
-        print("El pedido " + str(idPedido) + " con el producto: "+ str(idProducto) +" ha sido añadido")
-        conn.commit()
-        x.close()
-        conn.close()
+    query = "INSERT IGNORE INTO PedidoProducto (idPedido, idProducto) VALUES ('{0}', '{1}');".format(orderProducts[0], orderProducts[1])
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado:%s" % query + '\n')
+    # print("El pedido " + str(idOrder) + " con el producto: "+ str(idProduct) +" ha sido añadido")
+    conn.commit()
+    x.close()
+    conn.close()
 
+
+def insertOpinion(opinion):
+    conn = connection()
+    x = conn.cursor()
+    query = "UPDATE Pedido SET opinion = '%s' WHERE idPedido = '%i' " % (opinion[1], opinion[0])
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("La siguiente query ha fallado:%s" % query + '\n')
+    # print("El pedido " + str(idOrder) + " con el producto: "+ str(idProduct) +" ha sido añadido")
+    conn.commit()
+    x.close()
+    conn.close()
 
 
 def insertOrder(orderList): #Le llega una lista con el usuario que hace el pedido y el nombre del restaurante que elije
@@ -136,6 +145,18 @@ def deleteDatabase():
     except MySQLdb.ProgrammingError:
         print("Fallo:%s" % query + '\n')
     conn.commit()
+    query = "DROP TABLE IF EXISTS Usuario;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("Fallo:%s" % query + '\n')
+    conn.commit()
+    query = "DROP TABLE IF EXISTS PedidoProducto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
+    try:
+        x.execute(query)
+    except MySQLdb.ProgrammingError:
+        print("Fallo:%s" % query + '\n')
+    conn.commit()
     query = "DROP TABLE IF EXISTS RestauranteProducto;"  # IF EXISTS(SELECT * FROM  dbo.Producto) DROP TABLE Producto; IF EXISTS(SELECT * FROM  dbo.Restaurante) DROP TABLE Restaurante;"
     try:
         x.execute(query)
@@ -182,16 +203,16 @@ def createTables():
         print("Fallo:%s" % query + '\n')
     print("Tablas creadas")
     conn.commit()
-    # query = "CREATE TABLE Usuario( idUsuario int, nombreUsuario varchar(100), PRIMARY KEY(idUsuario))";
-    #
-    # try:
-    #     x.execute(query)
-    # except MySQLdb.Warning:
-    #     print("Fallo:%s" % query + '\n')
-    # print("Tablas creadas")
-    #
-    # conn.commit()
-    query = "CREATE TABLE Pedido(idPedido int NOT NULL AUTO_INCREMENT, idUsuario int , idRestaurante int, PRIMARY KEY(idPedido), FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante) ,FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario))";
+    query = "CREATE TABLE Usuario( idUsuario int, nombreUsuario varchar(100), PRIMARY KEY(idUsuario));"
+
+    try:
+        x.execute(query)
+    except MySQLdb.Warning:
+        print("Fallo:%s" % query + '\n')
+    print("Tablas creadas")
+
+    conn.commit()
+    query = "CREATE TABLE Pedido(idPedido int NOT NULL AUTO_INCREMENT, idUsuario int , idRestaurante int, opinion varchar(200), PRIMARY KEY(idPedido), FOREIGN KEY (idRestaurante) REFERENCES Restaurante (idRestaurante) ,FOREIGN KEY (idUsuario) REFERENCES Usuario (idUsuario))";
     try:
         x.execute(query)
     except MySQLdb.Warning:
@@ -325,10 +346,12 @@ def searchOrder(idUser, restaurantName): #Devuelve el id del ultimo pedido que s
     except MySQLdb.ProgrammingError:
         print("La siguiente query ha fallado: " + query + '\n')
     idProduct = x.fetchall()
+    for line in x:
+        idOrder = line[0]
     conn.commit()
     x.close()
     conn.close()
-    return idProduct
+    return idOrder
 
 
 
