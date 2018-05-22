@@ -1,8 +1,14 @@
+# http://mysql-python.sourceforge.net/MySQLdb.html
 import MySQLdb
-import requests
-import re
-import random
 
+# http://docs.python-requests.org/en/master/
+import requests
+
+# https://docs.python.org/2/library/re.html
+import re
+
+# https://docs.python.org/2/library/random.html
+import random
 
 def connection():
     conn = MySQLdb.connect(host= "localhost",
@@ -38,7 +44,6 @@ def insertOrderProduct(orderProducts): #Le llega una lista con el id del pedido 
         x.execute(query)
     except MySQLdb.ProgrammingError:
         print("La siguiente query ha fallado:%s" % query + '\n')
-    # print("El pedido " + str(idOrder) + " con el producto: "+ str(idProduct) +" ha sido añadido")
     conn.commit()
     x.close()
     conn.close()
@@ -52,7 +57,6 @@ def insertOpinion(opinion):
         x.execute(query)
     except MySQLdb.ProgrammingError:
         print("La siguiente query ha fallado:%s" % query + '\n')
-    # print("El pedido " + str(idOrder) + " con el producto: "+ str(idProduct) +" ha sido añadido")
     conn.commit()
     x.close()
     conn.close()
@@ -427,36 +431,6 @@ def searchRestaurantTypeSimilar(restaurantType, idRestaurant): #Devuelve los res
     restaurant = random.choice(restaurantName)
     return restaurant
 
-# def cargarRestaurantesProductosBBDD(listaProductosRestaurantes):
-#     conn = connection()
-#     x = conn.cursor()
-#
-#     for restauranteProducto in listaProductosRestaurantes:
-#         nombreRestaurante = restauranteProducto[0]
-#         nombreProducto = restauranteProducto[1]
-#
-#         x.execute("SELECT idRestaurante FROM Restaurante WHERE nombreRestaurante = '{0}' ;".format(restauranteProducto[0]))
-#
-#         idRestaurante = rows = x.fetchall()[0][0]
-#         print(idRestaurante)
-#
-#         x.execute("SELECT idProducto FROM Producto WHERE nombreProducto = '{0}' ;".format(restauranteProducto[1]))
-#
-#         idProducto = rows = x.fetchall()[0][0]
-#         print(idProducto)
-#
-#         query = "INSERT IGNORE INTO RestauranteProducto (idRestaurante, nombreRestaurante, idProducto, nombreProducto) VALUES ('{0}', '{1}', '{2}', '{3}');".format(
-#             idRestaurante, restauranteProducto[0], idProducto, restauranteProducto[1])
-#
-#         try:
-#             x.execute(query)
-#         except MySQLdb.ProgrammingError:
-#             print("La siguiente query ha fallado:%s" % query + '\n')
-#         print("El restaurante " + str(restauranteProducto) + " ha sido añadido")
-#
-#     conn.commit()
-#     x.close()
-#     conn.close()
 
 
 

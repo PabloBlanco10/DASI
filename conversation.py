@@ -1,4 +1,7 @@
+# https://github.com/dialogflow/dialogflow-python-client
 import apiai
+
+# https://docs.python.org/2/library/json.html
 import json
 
 
