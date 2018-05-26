@@ -26,12 +26,13 @@ CREATE TABLE `Pedido` (
   `idPedido` int(11) NOT NULL AUTO_INCREMENT,
   `idUsuario` int(11) DEFAULT NULL,
   `idRestaurante` int(11) DEFAULT NULL,
+  `opinion` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`idPedido`),
   KEY `idRestaurante` (`idRestaurante`),
   KEY `idUsuario` (`idUsuario`),
   CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`idRestaurante`) REFERENCES `Restaurante` (`idRestaurante`),
   CONSTRAINT `pedido_ibfk_2` FOREIGN KEY (`idUsuario`) REFERENCES `Usuario` (`idUsuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,6 +41,7 @@ CREATE TABLE `Pedido` (
 
 LOCK TABLES `Pedido` WRITE;
 /*!40000 ALTER TABLE `Pedido` DISABLE KEYS */;
+INSERT INTO `Pedido` VALUES (1,262982572,11,NULL),(2,262982572,12,NULL);
 /*!40000 ALTER TABLE `Pedido` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -66,6 +68,7 @@ CREATE TABLE `PedidoProducto` (
 
 LOCK TABLES `PedidoProducto` WRITE;
 /*!40000 ALTER TABLE `PedidoProducto` DISABLE KEYS */;
+INSERT INTO `PedidoProducto` VALUES (1,17),(1,19),(2,36),(2,37);
 /*!40000 ALTER TABLE `PedidoProducto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -81,7 +84,7 @@ CREATE TABLE `Producto` (
   `nombreProducto` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`idProducto`),
   UNIQUE KEY `nombreProducto` (`nombreProducto`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -90,7 +93,7 @@ CREATE TABLE `Producto` (
 
 LOCK TABLES `Producto` WRITE;
 /*!40000 ALTER TABLE `Producto` DISABLE KEYS */;
-INSERT INTO `Producto` VALUES (17,'Aros de Cebolla'),(9,'Arroz Tres Delicias'),(19,'Costillas'),(15,'Fideos Fritos'),(10,'Gyozas'),(16,'Hamburguesa Queso'),(11,'Kebab Carne'),(12,'Kebab Pollo'),(13,'Patatas fritas'),(1,'Pizza bolognesa'),(6,'Pizza cuatro quesos'),(3,'Pizza Hawaiana'),(2,'Pizza margarita'),(7,'Pizza mozzarella'),(5,'Pizza Napolitana'),(4,'Pizza Pollo'),(8,'Pizza prosciutto'),(14,'Shushi'),(18,'Tortilla de Patata');
+INSERT INTO `Producto` VALUES (28,'American Wings'),(17,'Aros de Cebolla'),(9,'Arroz Tres Delicias'),(2,'Calzone'),(26,'Cocido'),(19,'Costillas'),(35,'Croquetas'),(21,'Durum Cordero'),(12,'Falafel'),(15,'Fideos Fritos'),(20,'Fingers Pollo'),(23,'Gazpacho'),(10,'Gyozas'),(16,'Hamburguesa Queso'),(11,'Kebab'),(34,'Maki de Aguacate'),(36,'Morcilla'),(22,'Noodles Pollo'),(37,'Paella'),(6,'Pasta alfredo'),(4,'Pasta carbonara'),(13,'Patatas fritas'),(1,'Pizza bolognesa'),(3,'Pizza hawaiana'),(7,'Pizza mozzarella'),(5,'Pizza napolitana'),(8,'Pizza prosciutto'),(33,'Pollo al Curry'),(32,'Pollo al limon'),(25,'Ramen'),(29,'Rollito primavera'),(14,'Shushi'),(30,'Tallarines'),(27,'Teppanyaki'),(31,'Ternera Bambu'),(18,'Tortilla de Patata'),(24,'Waygu');
 /*!40000 ALTER TABLE `Producto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -107,7 +110,7 @@ CREATE TABLE `Restaurante` (
   `tipoRestaurante` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`idRestaurante`),
   UNIQUE KEY `nombreRestaurante` (`nombreRestaurante`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -116,7 +119,7 @@ CREATE TABLE `Restaurante` (
 
 LOCK TABLES `Restaurante` WRITE;
 /*!40000 ALTER TABLE `Restaurante` DISABLE KEYS */;
-INSERT INTO `Restaurante` VALUES (1,'Restaurante Asiatico','chino'),(2,'Pizzeria Luigi','italiano'),(3,'La mafia','italiano'),(4,'Durum Doner','turco'),(5,'Durum kebab','turco'),(6,'Korean Style','coreano'),(7,'Nyu Jao','japones'),(8,'Burger','americano'),(9,'Casa Jose','español'),(10,'Mcdonals','americano'),(11,'American Grill','americano');
+INSERT INTO `Restaurante` VALUES (1,'Yhu Yughae','china'),(2,'La Tagliatella','italiana'),(3,'La mafia','italiana'),(4,'Doner Valdebebas','turca'),(5,'Doner Bernabeu','turca'),(6,'Korean Style','coreana'),(7,'Nyu Jao','japonesa'),(8,'Fosters','americana'),(9,'Casa Jose','española'),(10,'Mcdonals','americana'),(11,'Grill Texas','americana'),(12,'Casa Marisa','española'),(13,'Yahi Moen','coreana'),(14,'Udon','japonesa'),(15,'Yakimi Nei','china');
 /*!40000 ALTER TABLE `Restaurante` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -143,7 +146,7 @@ CREATE TABLE `RestauranteProducto` (
 
 LOCK TABLES `RestauranteProducto` WRITE;
 /*!40000 ALTER TABLE `RestauranteProducto` DISABLE KEYS */;
-INSERT INTO `RestauranteProducto` VALUES (2,2),(3,2),(2,4),(3,5),(1,9),(6,9),(7,9),(1,10),(4,11),(5,11),(4,12),(5,13),(10,13),(6,14),(7,15),(8,16),(10,16),(8,17),(11,17),(9,18),(9,19),(11,19);
+INSERT INTO `RestauranteProducto` VALUES (2,2),(3,2),(2,4),(3,5),(2,6),(1,9),(6,9),(7,9),(1,10),(2,10),(14,10),(4,11),(5,11),(4,12),(5,13),(10,13),(6,14),(7,15),(8,16),(10,16),(8,17),(11,17),(9,18),(9,19),(11,19),(8,20),(10,20),(11,20),(4,21),(5,21),(14,22),(12,23),(6,24),(7,24),(14,24),(12,26),(6,27),(8,28),(10,28),(11,28),(6,29),(2,30),(3,30),(13,30),(7,31),(13,31),(13,32),(13,33),(7,34),(14,34),(12,35),(9,36),(12,36),(9,37),(12,37);
 /*!40000 ALTER TABLE `RestauranteProducto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -167,7 +170,7 @@ CREATE TABLE `Usuario` (
 
 LOCK TABLES `Usuario` WRITE;
 /*!40000 ALTER TABLE `Usuario` DISABLE KEYS */;
-INSERT INTO `Usuario` VALUES (23607651,'Maria'),(262982572,'Pablo');
+INSERT INTO `Usuario` VALUES (262982572,'Pablo');
 /*!40000 ALTER TABLE `Usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -180,4 +183,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-05-03 20:13:00
+-- Dump completed on 2018-05-25 22:28:04

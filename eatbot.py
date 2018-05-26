@@ -169,8 +169,9 @@ class EatBot:
 
             # comprobamos si ya ha hecho un pedido anteriormente para mostrarle su opinion
             opinion = database.searchOpinionFromRestaurant(database.searchIDRestaurant(restaurant))
-            if len(opinion) > 0:
-                self.bot.sendMessage(self.chat_id, 'Tu última opinión de este restaurante fue: ' + str(opinion))
+            if opinion != None:
+                if len(opinion) > 0:
+                    self.bot.sendMessage(self.chat_id, 'Tu última opinión de este restaurante fue: ' + str(opinion))
 
             self.bot.sendMessage(self.chat_id, 'Este restaurante tiene estos productos')
 
@@ -242,22 +243,35 @@ class EatBot:
 
     #creacion de la bdd
     def createDatabase(self):
-        productsList = ["Pizza bolognesa", "Pizza margarita", "Pizza hawaiana", "Pasta carbonara", "Pizza napolitana",
+        productsList = ["Pizza bolognesa", "Calzone", "Pizza hawaiana", "Pasta carbonara", "Pizza napolitana",
                           "Pasta alfredo",
                           "Pizza mozzarella", "Pizza prosciutto", "Arroz Tres Delicias", "Gyozas", "Kebab",
                           "Falafel", "Patatas fritas",
                           "Shushi", "Fideos Fritos", "Hamburguesa Queso", "Aros de Cebolla", "Tortilla de Patata",
-                          "Costillas"]
+                          "Costillas" , "Fingers Pollo", "Durum Cordero", "Noodles Pollo", "Gazpacho",
+                          "Waygu", "Ramen", "Cocido", "Teppanyaki",
+                        "American Wings", "Rollito primavera", "Tallarines", "Ternera Bambu", "Pollo al limon",
+                        "Pollo al Curry", "Maki de Aguacate", "Croquetas", "Morcilla", "Paella"]
 
         restaurantsList = [["Yhu Yughae", "china"], ["La Tagliatella", "italiana"],
                              ["La mafia", "italiana"], ["Doner Valdebebas", "turca"], ["Doner Bernabeu", "turca"],
                              ["Korean Style", "coreana"], ["Nyu Jao", "japonesa"], ["Fosters", "americana"],
-                             ["Casa Jose", "española"], ["Mcdonals", "americana"], ["Grill Texas", "americana"]]
+                             ["Casa Jose", "española"], ["Mcdonals", "americana"], ["Grill Texas", "americana"],
+                             ["Casa Marisa", "española"], ["Yahi Moen", "coreana"], ["Udon", "japonesa"],
+                             ["Yakimi Nei", "china"]]
 
+        #tuplas de idRestaurante, idProducto
         restaurantProductList = [[1, 9], [1, 10], [2, 2], [2, 4], [3, 2], [3, 5], [4, 11], [4, 12],
                                               [5, 11], [5, 13], [6, 9], [6, 14], [7, 9], [7, 15],
                                               [8, 16], [8, 17], [9, 18], [9, 19], [10, 13], [10, 16],
-                                              [11, 17], [11, 19]]
+                                              [11, 17], [11, 19],
+                                    [8, 16], [8, 17], [9, 18], [9, 19], [10, 13], [10, 16],
+                                 [12, 35], [12, 36], [12, 37], [12, 26], [12, 23], [9, 37],
+                                 [13, 33], [13, 32], [13, 31], [13, 30], [6, 27], [6, 24],
+                                 [14, 34], [14, 22], [14, 24], [14, 10], [7, 31], [7, 34],
+                                 [2, 30], [2, 10], [2, 6], [3, 30], [4, 21], [5, 21],
+                                 [6, 27], [6, 29], [7, 24], [7, 34], [8, 20], [8, 28],
+                                 [9, 37], [9, 36], [10, 20], [10, 28], [11, 28], [11, 20]]
 
         database.deleteDatabase()
         database.createTables()
